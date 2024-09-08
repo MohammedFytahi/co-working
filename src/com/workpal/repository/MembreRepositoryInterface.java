@@ -19,4 +19,6 @@ public interface MembreRepositoryInterface {
 
     // Supprimer un membre
     void deleteMembre(int id);
+
+    Optional<Membre> authenticate(String email, String motDePasse);
 }

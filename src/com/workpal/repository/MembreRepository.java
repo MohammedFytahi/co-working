@@ -126,4 +126,44 @@ public class MembreRepository implements MembreRepositoryInterface {
     public void deleteMembre(int id) {
         // Implémentez la logique de suppression ici
     }
+
+    @Override
+    public Optional<Membre> authenticate(String email, String motDePasse) {
+        Membre membre = null;
+        Connection connection = null;
+        try {
+            connection = DatabaseConnection.getInstance().getConnection();
+            String sql = "SELECT * FROM membres WHERE email = ? AND mot_de_passe = ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, email);
+            statement.setString(2, motDePasse);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                membre = new Membre(
+                        resultSet.getInt("id_membre"),
+                        resultSet.getString("nom"),
+                        resultSet.getString("prenom"),
+                        resultSet.getString("email"),
+                        resultSet.getString("mot_de_passe"),
+                        resultSet.getString("adresse"),
+                        resultSet.getString("telephone"),
+                        resultSet.getString("photo_profil"),
+                        resultSet.getTimestamp("date_inscription").toLocalDateTime()
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return Optional.ofNullable(membre);
+    }
 }
