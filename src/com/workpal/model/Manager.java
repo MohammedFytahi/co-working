@@ -7,8 +7,11 @@ public class Manager extends Personne {
     public Manager() {
     }
 
-    public Manager( String name, String email, String password, String address, String phone, String role) {
-        super( name, email, password, address, phone, role);
+    public Manager( String name, String email, String password, String address, String phone) {
+        super( name, email, password, address, phone, "manager");
+    }
+
+    public Manager(int id, String name, String email, String password, String address, String phone) {
     }
 
     // Vous pouvez ajouter des méthodes spécifiques aux gestionnaires ici

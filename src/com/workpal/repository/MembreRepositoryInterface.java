@@ -14,7 +14,12 @@ public interface MembreRepositoryInterface {
 
     // Method to find a member by ID
     Membre trouverParId(int idMembre);
+    Optional<Membre> authenticate(String email, String password);
 
     // Method to update a member's personal information
     void mettreAJourInfosPersonnelles(Membre membre);
+
+    void mettreAJourMotDePasse(Membre membre);
+
+    Membre trouverParEmail(String email);
 }

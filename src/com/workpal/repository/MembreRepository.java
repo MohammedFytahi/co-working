@@ -4,7 +4,6 @@ import com.workpal.model.Membre;
 import com.workpal.database.DatabaseConnection;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 public class MembreRepository implements MembreRepositoryInterface {
@@ -23,14 +22,12 @@ public class MembreRepository implements MembreRepositoryInterface {
     public Optional<Membre> findByEmail(String email) {
         Membre membre = null;
         try {
-            // La requête devrait être sur la table `personne` pour récupérer les informations
             String query = "SELECT * FROM personne WHERE email = ?";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, email);
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                // Utilisation de l'ID de `personne` pour trouver le membre
                 int id = resultSet.getInt("id");
                 String selectMembreQuery = "SELECT * FROM membre WHERE id = ?";
                 PreparedStatement selectMembreStatement = connection.prepareStatement(selectMembreQuery);
@@ -47,43 +44,37 @@ public class MembreRepository implements MembreRepositoryInterface {
                             resultSet.getString("phone")
                     );
                 }
-
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return Optional.ofNullable(membre);
     }
+
+    @Override
     public void createMembre(Membre membre) {
         try {
-            // Insérer directement dans la table `membre`
             String query = "INSERT INTO membre (name, email, password, address, phone, role) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-
-            // Définir les paramètres pour l'insertion
-            statement.setString(1, membre.getName());  // Assurez-vous que membre.getName() n'est pas null
-            statement.setString(2, membre.getEmail()); // Assurez-vous que membre.getEmail() n'est pas null
+            statement.setString(1, membre.getName());
+            statement.setString(2, membre.getEmail());
             statement.setString(3, membre.getPassword());
             statement.setString(4, membre.getAddress());
             statement.setString(5, membre.getPhone());
-            statement.setString(6, "membre"); // Définir le rôle comme "membre"
-
-            // Exécution de la requête
+            statement.setString(6, "membre");
             statement.executeUpdate();
 
-            // Récupérer l'ID généré
             ResultSet generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 int id = generatedKeys.getInt(1);
-                membre.setId(id); // Mettre à jour l'ID dans l'objet membre si nécessaire
+                membre.setId(id);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
+    @Override
     public Optional<Membre> authenticate(String email, String password) {
         Optional<Membre> membre = findByEmail(email);
         if (membre.isPresent() && membre.get().getPassword().equals(password)) {
@@ -106,7 +97,6 @@ public class MembreRepository implements MembreRepositoryInterface {
                     membre.setPassword(resultSet.getString("password"));
                     membre.setAddress(resultSet.getString("address"));
                     membre.setPhone(resultSet.getString("phone"));
-                    // Add other fields as necessary
                     return membre;
                 }
             }
@@ -115,7 +105,6 @@ public class MembreRepository implements MembreRepositoryInterface {
         }
         return null;
     }
-
 
     @Override
     public void mettreAJourInfosPersonnelles(Membre membre) {
@@ -129,8 +118,21 @@ public class MembreRepository implements MembreRepositoryInterface {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void mettreAJourMotDePasse(Membre membre) {
+        String query = "UPDATE membre SET password = ? WHERE email = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, membre.getPassword());
+            stmt.setString(2, membre.getEmail());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-
-
-
+    @Override
+    public Membre trouverParEmail(String email) {
+        return findByEmail(email).orElse(null);
+    }
+}

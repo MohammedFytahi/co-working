@@ -2,6 +2,8 @@ package com.workpal.service;
 
 import com.workpal.model.Membre;
 import com.workpal.repository.MembreRepositoryInterface;
+import com.workpal.util.EmailSender;
+import com.workpal.util.PasswordGenerator;
 
 import java.util.Optional;
 
@@ -41,6 +43,24 @@ public class MembreService {
     // Method to update member's personal information
     public void mettreAJourInfosPersonnelles(Membre membre) {
         membreRepository.mettreAJourInfosPersonnelles(membre);
+    }
+
+    public void recupererMotDePasse(String email) {
+        // Check if member exists
+        Membre membre = membreRepository.trouverParEmail(email);
+        if (membre != null) {
+            // Generate temporary password
+            String tempPassword = PasswordGenerator.genererMotDePasseTemporaire();
+
+            // Send the temporary password via email
+            EmailSender.envoyerEmail(membre.getEmail(), tempPassword);
+
+            // Update the member's password in the database
+            membre.setPassword(tempPassword);
+            membreRepository.mettreAJourMotDePasse(membre);
+        } else {
+            System.out.println("Aucun membre trouvé avec cet e-mail.");
+        }
     }
 
 }

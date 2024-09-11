@@ -22,13 +22,14 @@ public class AdminRepository implements AdminRepositoryInterface {
 
     @Override
     public void ajouterMembre(Membre membre) {
-        String query = "INSERT INTO membre (name, email, password, address, phone) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO membre (name, email, password, address, phone,role) VALUES (?, ?, ?, ?, ?,?)";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, membre.getName());
             statement.setString(2, membre.getEmail());
             statement.setString(3, membre.getPassword());
             statement.setString(4, membre.getAddress());
             statement.setString(5, membre.getPhone());
+            statement.setString(6, "membre");
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -38,13 +39,14 @@ public class AdminRepository implements AdminRepositoryInterface {
     @Override
     public void ajouterManager(Manager manager) {
         // Same structure as ajouterMembre
-        String query = "INSERT INTO manager (name, email, password, address, phone) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO manager (name, email, password, address, phone, role) VALUES (?, ?, ?, ?, ?,?)";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, manager.getName());
             statement.setString(2, manager.getEmail());
             statement.setString(3, manager.getPassword());
             statement.setString(4, manager.getAddress());
             statement.setString(5, manager.getPhone());
+            statement.setString(6, "manager");
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

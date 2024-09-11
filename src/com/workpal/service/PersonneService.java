@@ -15,7 +15,7 @@ public class PersonneService {
     public String seConnecter(String email, String password) {
         Optional<Personne> personne = personneRepository.findByEmailAndPassword(email, password);
         if (personne.isPresent()) {
-            return personne.get().getRole(); // Return the role of the logged-in user
+            return personne.get().getRole();
         }
         return null;
     }
