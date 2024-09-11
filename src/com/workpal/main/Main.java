@@ -5,6 +5,7 @@ import com.workpal.service.MembreService;
 import com.workpal.repository.PersonneRepository;
 import com.workpal.repository.MembreRepository;
 import com.workpal.model.Membre;
+import com.workpal.util.InputValidator;
 
 import java.util.Scanner;
 
@@ -31,14 +32,37 @@ public class Main {
                     // Create an account
                     System.out.print("Entrez le nom : ");
                     String name = scanner.nextLine();
+                    if (!InputValidator.validateName(name)){
+                        System.out.println("Nom invalide. Veuiller entrer un nom valide");
+                        continue;
+                    }
                     System.out.print("Entrez l'email : ");
                     String email = scanner.nextLine();
+                    if (!InputValidator.validateEmail(email)){
+                        System.out.println("Email invalide. Veuiller entrer un email valide");
+                        continue;
+                    }
                     System.out.print("Entrez le mot de passe : ");
                     String password = scanner.nextLine();
+                    if (!InputValidator.validatePassword(password)) {
+                        System.out.println("Mot de passe invalide. Le mot de passe doit contenir au moins 8 caractères.");
+                        continue;
+                    }
+
                     System.out.print("Entrez l'adresse : ");
                     String address = scanner.nextLine();
+                    if (!InputValidator.validateAddress(address)) {
+                        System.out.println("Adresse invalide. Veuillez entrer une adresse valide.");
+                        continue;
+                    }
+
                     System.out.print("Entrez le téléphone : ");
                     String phone = scanner.nextLine();
+                    if (!InputValidator.validatePhone(phone)) {
+                        System.out.println("Numéro de téléphone invalide. Veuillez entrer un numéro de 10 chiffres.");
+                        continue;
+                    }
+
 
                     // Call MembreService for registration
                     membreService.enregistrerMembre(name, email, password, address, phone);
