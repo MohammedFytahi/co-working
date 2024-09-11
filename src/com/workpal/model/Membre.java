@@ -2,108 +2,31 @@ package com.workpal.model;
 
 import java.time.LocalDateTime;
 
-public class Membre {
-    private int id;
-    private String nom;
-    private String prenom;
-    private String email;
-    private String motDePasse;
-    private String adresse;
-    private String telephone;
-    private String photoProfil;
+public class Membre extends Personne {
     private LocalDateTime dateInscription;
 
-    public int getId() {
-        return id;
+    // Constructeur pour créer un nouveau membre sans ID
+    public Membre(String name, String email, String password, String address, String phone) {
+        super(name, email, password, address, phone, "Membre"); // Appel au constructeur de la classe mère avec le rôle "Membre"
+        this.dateInscription = LocalDateTime.now(); // Initialisation automatique de la date d'inscription
     }
 
-    public String getNom() {
-        return nom;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-    public void setPrenom(String prenom) {
-        this.prenom = prenom;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setMotDePasse(String motDePasse) {
-        this.motDePasse = motDePasse;
-    }
-
-    public void setAdresse(String adresse) {
-        this.adresse = adresse;
-    }
-
-    public void setTelephone(String telephone) {
-        this.telephone = telephone;
-    }
-
-    public void setPhotoProfil(String photoProfil) {
-        this.photoProfil = photoProfil;
-    }
-
-    public void setDateInscription(LocalDateTime dateInscription) {
+    // Constructeur avec ID pour les membres récupérés depuis la base de données
+    public Membre(int id, String name, String email, String password, String address, String phone  ) {
+        super(id, name, email, password, address, phone, "Membre"); // Appel au constructeur parent avec l'ID
         this.dateInscription = dateInscription;
     }
 
-    public String getPrenom() {
-        return prenom;
+    public Membre() {
+
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public String getMotDePasse() {
-        return motDePasse;
-    }
-
-    public String getAdresse() {
-        return adresse;
-    }
-
-    public String getTelephone() {
-        return telephone;
-    }
-
-    public String getPhotoProfil() {
-        return photoProfil;
-    }
-
+    // Getters et setters
     public LocalDateTime getDateInscription() {
         return dateInscription;
     }
 
-    // Constructeur complet
-    public Membre(int id, String nom, String prenom, String email, String motDePasse, String adresse,
-                  String telephone, String photoProfil, LocalDateTime dateInscription) {
-        this.id = id;
-        this.nom = nom;
-        this.prenom = prenom;
-        this.email = email;
-        this.motDePasse = motDePasse;
-        this.adresse = adresse;
-        this.telephone = telephone;
-        this.photoProfil = photoProfil;
+    public void setDateInscription(LocalDateTime dateInscription) {
         this.dateInscription = dateInscription;
-    }
-
-    // Getters et Setters
-    // ...
-
-    @Override
-    public String toString() {
-        return "Membre [id=" + id + ", nom=" + nom + ", prenom=" + prenom + ", email=" + email + "]";
     }
 }

@@ -6,31 +6,41 @@ import com.workpal.repository.MembreRepositoryInterface;
 import java.util.Optional;
 
 public class MembreService {
-    private MembreRepositoryInterface membreRepository;
+    private final MembreRepositoryInterface membreRepository;
 
     public MembreService(MembreRepositoryInterface membreRepository) {
         this.membreRepository = membreRepository;
     }
 
-    public void enregistrerMembre(String nom, String prenom, String email, String motDePasse,
-                                  String adresse, String telephone, String photoProfil) {
+    public void enregistrerMembre(String name, String email, String password, String address, String phone) {
         Optional<Membre> membreExistant = membreRepository.findByEmail(email);
         if (membreExistant.isPresent()) {
             System.out.println("Erreur: Un membre avec cet email existe déjà.");
             return;
         }
-        Membre nouveauMembre = new Membre(0, nom, prenom, email, motDePasse, adresse, telephone, photoProfil, null);
+
+        Membre nouveauMembre = new Membre(name, email, password, address, phone);
         membreRepository.createMembre(nouveauMembre);
         System.out.println("Le membre a été créé avec succès.");
     }
 
-    public Optional<Membre> connecterMembre(String email, String motDePasse) {
-        Optional<Membre> membre = membreRepository.authenticate(email, motDePasse);
-        if (membre.isPresent()) {
-            System.out.println("Connexion réussie.");
-        } else {
-            System.out.println("Erreur: Adresse e-mail ou mot de passe incorrect.");
+    // Méthode pour vérifier les informations de connexion
+    public boolean seConnecter(String email, String password) {
+        Optional<Membre> membreOpt = membreRepository.findByEmail(email);
+        if (membreOpt.isPresent()) {
+            Membre membre = membreOpt.get();
+            return membre.getPassword().equals(password);
         }
-        return membre;
+        return false;
     }
+
+    public Membre trouverParId(int idMembre) {
+        return membreRepository.trouverParId(idMembre);
+    }
+
+    // Method to update member's personal information
+    public void mettreAJourInfosPersonnelles(Membre membre) {
+        membreRepository.mettreAJourInfosPersonnelles(membre);
+    }
+
 }

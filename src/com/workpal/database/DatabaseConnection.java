@@ -10,7 +10,7 @@ public class DatabaseConnection {
     private Connection connection;
 
     // Informations de connexion à la base de données
-    private String url = "jdbc:postgresql://localhost:5432/co_working";
+    private String url = "jdbc:postgresql://localhost:5432/WorkPal";
     private String username = "postgres";
     private String password = "2001";
 

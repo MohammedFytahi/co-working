@@ -4,166 +4,133 @@ import com.workpal.model.Membre;
 import com.workpal.database.DatabaseConnection;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public class MembreRepository implements MembreRepositoryInterface {
 
-    @Override
-    public Optional<Membre> findById(int id) {
-        Membre membre = null;
-        Connection connection = null;
+    private Connection connection;
+
+    public MembreRepository() {
         try {
-            connection = DatabaseConnection.getInstance().getConnection();
-            String sql = "SELECT * FROM membres WHERE id_membre = ?";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1, id);
-            ResultSet resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                membre = new Membre(
-                        resultSet.getInt("id_membre"),
-                        resultSet.getString("nom"),
-                        resultSet.getString("prenom"),
-                        resultSet.getString("email"),
-                        resultSet.getString("mot_de_passe"),
-                        resultSet.getString("adresse"),
-                        resultSet.getString("telephone"),
-                        resultSet.getString("photo_profil"),
-                        resultSet.getTimestamp("date_inscription").toLocalDateTime()
-                );
-            }
-
+            this.connection = DatabaseConnection.getInstance().getConnection();
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            // Fermez la connexion pour éviter les fuites de ressources
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return Optional.ofNullable(membre);
-    }
-
-    @Override
-    public void createMembre(Membre membre) {
-        Connection connection = null;
-        try {
-            connection = DatabaseConnection.getInstance().getConnection();
-            String sql = "INSERT INTO membres (nom, prenom, email, mot_de_passe, adresse, telephone, photo_profil) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, membre.getNom());
-            statement.setString(2, membre.getPrenom());
-            statement.setString(3, membre.getEmail());
-            statement.setString(4, membre.getMotDePasse());
-            statement.setString(5, membre.getAdresse());
-            statement.setString(6, membre.getTelephone());
-            statement.setString(7, membre.getPhotoProfil());
-            statement.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
     @Override
     public Optional<Membre> findByEmail(String email) {
         Membre membre = null;
-        Connection connection = null;
         try {
-            connection = DatabaseConnection.getInstance().getConnection();
-            String sql = "SELECT * FROM membres WHERE email = ?";
-            PreparedStatement statement = connection.prepareStatement(sql);
+            // La requête devrait être sur la table `personne` pour récupérer les informations
+            String query = "SELECT * FROM personne WHERE email = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, email);
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                membre = new Membre(
-                        resultSet.getInt("id_membre"),
-                        resultSet.getString("nom"),
-                        resultSet.getString("prenom"),
-                        resultSet.getString("email"),
-                        resultSet.getString("mot_de_passe"),
-                        resultSet.getString("adresse"),
-                        resultSet.getString("telephone"),
-                        resultSet.getString("photo_profil"),
-                        resultSet.getTimestamp("date_inscription").toLocalDateTime()
-                );
+                // Utilisation de l'ID de `personne` pour trouver le membre
+                int id = resultSet.getInt("id");
+                String selectMembreQuery = "SELECT * FROM membre WHERE id = ?";
+                PreparedStatement selectMembreStatement = connection.prepareStatement(selectMembreQuery);
+                selectMembreStatement.setInt(1, id);
+                ResultSet membreResultSet = selectMembreStatement.executeQuery();
+
+                if (membreResultSet.next()) {
+                    membre = new Membre(
+                            id,
+                            resultSet.getString("name"),
+                            resultSet.getString("email"),
+                            resultSet.getString("password"),
+                            resultSet.getString("address"),
+                            resultSet.getString("phone")
+                    );
+                }
+
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
         return Optional.ofNullable(membre);
     }
-
-    @Override
-    public void updateMembre(Membre membre) {
-        // Implémentez la logique de mise à jour ici
-    }
-
-    @Override
-    public void deleteMembre(int id) {
-        // Implémentez la logique de suppression ici
-    }
-
-    @Override
-    public Optional<Membre> authenticate(String email, String motDePasse) {
-        Membre membre = null;
-        Connection connection = null;
+    public void createMembre(Membre membre) {
         try {
-            connection = DatabaseConnection.getInstance().getConnection();
-            String sql = "SELECT * FROM membres WHERE email = ? AND mot_de_passe = ?";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, email);
-            statement.setString(2, motDePasse);
-            ResultSet resultSet = statement.executeQuery();
+            // Insérer directement dans la table `membre`
+            String query = "INSERT INTO membre (name, email, password, address, phone, role) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 
-            if (resultSet.next()) {
-                membre = new Membre(
-                        resultSet.getInt("id_membre"),
-                        resultSet.getString("nom"),
-                        resultSet.getString("prenom"),
-                        resultSet.getString("email"),
-                        resultSet.getString("mot_de_passe"),
-                        resultSet.getString("adresse"),
-                        resultSet.getString("telephone"),
-                        resultSet.getString("photo_profil"),
-                        resultSet.getTimestamp("date_inscription").toLocalDateTime()
-                );
+            // Définir les paramètres pour l'insertion
+            statement.setString(1, membre.getName());  // Assurez-vous que membre.getName() n'est pas null
+            statement.setString(2, membre.getEmail()); // Assurez-vous que membre.getEmail() n'est pas null
+            statement.setString(3, membre.getPassword());
+            statement.setString(4, membre.getAddress());
+            statement.setString(5, membre.getPhone());
+            statement.setString(6, "membre"); // Définir le rôle comme "membre"
+
+            // Exécution de la requête
+            statement.executeUpdate();
+
+            // Récupérer l'ID généré
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                int id = generatedKeys.getInt(1);
+                membre.setId(id); // Mettre à jour l'ID dans l'objet membre si nécessaire
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+        }
+    }
+
+    public Optional<Membre> authenticate(String email, String password) {
+        Optional<Membre> membre = findByEmail(email);
+        if (membre.isPresent() && membre.get().getPassword().equals(password)) {
+            return membre;
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Membre trouverParId(int idMembre) {
+        String query = "SELECT * FROM membre WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, idMembre);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    Membre membre = new Membre();
+                    membre.setId(resultSet.getInt("id"));
+                    membre.setName(resultSet.getString("name"));
+                    membre.setEmail(resultSet.getString("email"));
+                    membre.setPassword(resultSet.getString("password"));
+                    membre.setAddress(resultSet.getString("address"));
+                    membre.setPhone(resultSet.getString("phone"));
+                    // Add other fields as necessary
+                    return membre;
                 }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return Optional.ofNullable(membre);
+        return null;
     }
-}
+
+
+    @Override
+    public void mettreAJourInfosPersonnelles(Membre membre) {
+        String query = "UPDATE membre SET address = ?, phone = ? WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, membre.getAddress());
+            statement.setString(2, membre.getPhone());
+            statement.setInt(3, membre.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    }
+
+
+
+
