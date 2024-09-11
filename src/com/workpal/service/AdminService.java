@@ -44,4 +44,8 @@ public class AdminService {
     public Membre trouverMembreParId(int id) {
         return adminRepository.trouverMembreParId(id);
     }
+
+    public Manager trouverManagerParId(int id) {
+        return adminRepository.trouverManagerParId(id);
+    }
 }

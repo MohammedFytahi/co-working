@@ -1,8 +1,8 @@
 package com.workpal.repository;
 
-import com.workpal.database.DatabaseConnection;
 import com.workpal.model.Membre;
 import com.workpal.model.Manager;
+import com.workpal.database.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -37,6 +37,7 @@ public class AdminRepository implements AdminRepositoryInterface {
 
     @Override
     public void ajouterManager(Manager manager) {
+        // Same structure as ajouterMembre
         String query = "INSERT INTO manager (name, email, password, address, phone) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, manager.getName());
@@ -68,6 +69,7 @@ public class AdminRepository implements AdminRepositoryInterface {
 
     @Override
     public void modifierManager(Manager manager) {
+        // Same structure as modifierMembre
         String query = "UPDATE manager SET name = ?, email = ?, password = ?, address = ?, phone = ? WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, manager.getName());
@@ -95,6 +97,7 @@ public class AdminRepository implements AdminRepositoryInterface {
 
     @Override
     public void supprimerManager(int managerId) {
+        // Same structure as supprimerMembre
         String query = "DELETE FROM manager WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, managerId);
@@ -111,15 +114,14 @@ public class AdminRepository implements AdminRepositoryInterface {
             statement.setInt(1, idMembre);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    Membre membre = new Membre();
-                    membre.setId(resultSet.getInt("id"));
-                    membre.setName(resultSet.getString("name"));
-                    membre.setEmail(resultSet.getString("email"));
-                    membre.setPassword(resultSet.getString("password"));
-                    membre.setAddress(resultSet.getString("address"));
-                    membre.setPhone(resultSet.getString("phone"));
-                    // Add other fields as necessary
-                    return membre;
+                    return new Membre(
+                            resultSet.getInt("id"),
+                            resultSet.getString("name"),
+                            resultSet.getString("email"),
+                            resultSet.getString("password"),
+                            resultSet.getString("address"),
+                            resultSet.getString("phone")
+                    );
                 }
             }
         } catch (SQLException e) {
@@ -128,25 +130,27 @@ public class AdminRepository implements AdminRepositoryInterface {
         return null;
     }
 
+    @Override
     public Manager trouverManagerParId(int id) {
-        String query = "SELECT * FROM manager WHERE id_manager = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                String nom = rs.getString("nom");
-                String email = rs.getString("email");
-                String password = rs.getString("mot_de_passe");
-                String adresse = rs.getString("adresse");
-                String telephone = rs.getString("telephone");
-
-                return new Manager(id, nom, email, password, adresse, telephone);
+        // Same structure as trouverMembreParId
+        String query = "SELECT * FROM manager WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, id);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return new Manager(
+                            resultSet.getInt("id"),
+                            resultSet.getString("name"),
+                            resultSet.getString("email"),
+                            resultSet.getString("password"),
+                            resultSet.getString("address"),
+                            resultSet.getString("phone")
+                    );
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null; // If no manager is found
+        return null;
     }
-
 }
