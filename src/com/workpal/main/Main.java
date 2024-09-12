@@ -1,5 +1,6 @@
 package com.workpal.main;
-
+import java.util.List;
+import java.util.Scanner;
 import com.workpal.model.Space;
 import com.workpal.repository.SpaceRepository;
 import com.workpal.service.PersonneService;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Scanner;
 
 
+
 public class Main {
     public static void main(String[] args) throws SQLException {
         // Initialize repositories and services
@@ -31,6 +33,7 @@ public class Main {
         PersonneService personneService = new PersonneService(personneRepository);
         MembreService membreService = new MembreService(membreRepository);
         AdminService adminService = new AdminService(adminRepository);
+
 
         Scanner scanner = new Scanner(System.in);
 
@@ -159,7 +162,7 @@ public class Main {
 
             switch (choix) {
                 case 1:
-                    // Implement search functionality
+                        searchSpacesByType();
                     break;
                 case 2:
                     // Implement reservation functionality
@@ -201,6 +204,25 @@ public class Main {
         }
     }
 
+    private static void searchSpacesByType() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Entrez le type d'espace (ex: 'salle de réunion', 'espace de coworking'):");
+        String typeEspace = scanner.nextLine();
+        SpaceRepository spaceRepository = new SpaceRepository();
+        SpaceService spaceService = new SpaceService(spaceRepository);
+        List<Space> espacesDisponibles = spaceService.findSpacesByType(typeEspace);
+
+        if (espacesDisponibles.isEmpty()) {
+            System.out.println("Aucun espace disponible pour ce type.");
+        } else {
+            System.out.println("Espaces disponibles:");
+            for (Space espace : espacesDisponibles) {
+                System.out.println(espace);
+            }
+        }
+
+
+    }
     private static void afficherMenuAdmin(Scanner scanner, AdminService adminService) {
         while (true) {
             System.out.println("=== Menu Administrateur ===");

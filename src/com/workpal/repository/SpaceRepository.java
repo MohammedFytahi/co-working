@@ -5,6 +5,7 @@ import com.workpal.model.Space;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SpaceRepository {
     private  Connection connection;
@@ -108,4 +109,33 @@ public class SpaceRepository {
             pstmt.executeUpdate();
         }
     }
+
+
+
+    public List<Space> findSpacesByType(String typeEspace) throws SQLException {
+        String sql = "SELECT * FROM espace WHERE type_espace = ? AND disponibilite = true";
+        List<Space> spaces = new ArrayList<>();
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, typeEspace);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Space space = new Space(
+                            rs.getInt("id_espace"),
+                            rs.getString("nom"),
+                            rs.getString("description"),
+                            rs.getInt("taille"),
+                            List.of((String[]) rs.getArray("equipements").getArray()),
+                            rs.getInt("capacite"),
+                            rs.getString("type_espace"),
+                            rs.getBigDecimal("prix_journee"),
+                            rs.getBoolean("disponibilite"),
+                            rs.getTimestamp("date_creation").toLocalDateTime()
+                    );
+                    spaces.add(space);
+                }
+            }
+        }
+        return spaces;
+    }
+
 }

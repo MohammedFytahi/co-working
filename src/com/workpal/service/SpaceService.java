@@ -39,5 +39,13 @@ public class SpaceService {
         spaceRepository.deleteSpace(idEspace);
     }
 
-    // Additional business logic methods can be added here
+    public List<Space> findSpacesByType(String typeEspace) {
+        try {
+            return spaceRepository.findSpacesByType(typeEspace);
+        } catch (SQLException e) {
+            System.err.println("Error finding spaces by type: " + e.getMessage());
+            return null;
+        }
+    }
+
 }
