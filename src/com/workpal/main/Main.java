@@ -1,5 +1,7 @@
 package com.workpal.main;
 
+import com.workpal.model.Space;
+import com.workpal.repository.SpaceRepository;
 import com.workpal.service.PersonneService;
 import com.workpal.service.MembreService;
 import com.workpal.service.AdminService;
@@ -8,19 +10,28 @@ import com.workpal.repository.MembreRepository;
 import com.workpal.repository.AdminRepository;
 import com.workpal.model.Membre;
 import com.workpal.model.Manager;
+import com.workpal.service.SpaceService;
 import com.workpal.util.InputValidator;
 
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
+
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         // Initialize repositories and services
         PersonneRepository personneRepository = new PersonneRepository();
         MembreRepository membreRepository = new MembreRepository();
         AdminRepository adminRepository = new AdminRepository();
+
         PersonneService personneService = new PersonneService(personneRepository);
         MembreService membreService = new MembreService(membreRepository);
         AdminService adminService = new AdminService(adminRepository);
+
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -98,7 +109,7 @@ public class Main {
         System.out.println("Inscription terminée.");
     }
 
-    private static void login(Scanner scanner, PersonneService personneService, MembreService membreService, AdminService adminService) {
+    private static void login(Scanner scanner, PersonneService personneService, MembreService membreService, AdminService adminService) throws SQLException {
         System.out.print("Entrez l'email : ");
         String loginEmail = scanner.nextLine();
         System.out.print("Entrez le mot de passe : ");
@@ -115,7 +126,9 @@ public class Main {
                     afficherMenuAdmin(scanner, adminService);
                     break;
                 case "manager":
-                    afficherMenuManager(scanner);
+                    SpaceRepository spaceRepository = new SpaceRepository();
+                    SpaceService spaceService = new SpaceService(spaceRepository);
+                    afficherMenuManager(scanner,spaceService);
                     break;
             }
         } else {
@@ -264,9 +277,88 @@ public class Main {
         }
     }
 
-    private static void afficherMenuManager(Scanner scanner) {
-        // Manager menu code
+    private static void afficherMenuManager(Scanner scanner, SpaceService spaceService) throws SQLException {
+        while (true) {
+            System.out.println("=== Menu Manager ===");
+            System.out.println("1. Ajouter un espace de travail ou une salle de réunion");
+            System.out.println("2. Modifier un espace");
+            System.out.println("3. Supprimer un espace");
+            System.out.println("4. Afficher tous les espaces");
+            System.out.println("5. Déconnexion");
+            System.out.print("Choisissez une option : ");
+            int choix = scanner.nextInt();
+            scanner.nextLine(); // Consommer la ligne
+
+            switch (choix) {
+                case 1:
+                    Space newSpace = collectSpaceDetails(scanner);
+                    spaceService.addSpace(newSpace);
+                    System.out.println("Espace ajouté avec succès.");
+                    break;
+                case 2:
+                    System.out.print("Entrez l'ID de l'espace à modifier : ");
+                    int idEspace = scanner.nextInt();
+                    scanner.nextLine(); // Consommer la ligne
+                    Space espaceAModifier = spaceService.getSpaceById(idEspace);
+                    if (espaceAModifier != null) {
+                        Space espaceModifie = collectSpaceDetails(scanner);
+                        espaceModifie.setIdEspace(idEspace);
+                        spaceService.updateSpace(espaceModifie);
+                        System.out.println("Espace modifié avec succès.");
+                    } else {
+                        System.out.println("Espace non trouvé.");
+                    }
+                    break;
+                case 3:
+                    System.out.print("Entrez l'ID de l'espace à supprimer : ");
+                    int id = scanner.nextInt();
+                    scanner.nextLine(); // Consommer la ligne
+                    spaceService.deleteSpace(id);
+                    System.out.println("Espace supprimé avec succès.");
+                    break;
+                case 4:
+                    System.out.println("Liste des espaces :");
+                    List<Space> espaces = spaceService.getAllSpaces();
+                    espaces.forEach(espace -> {
+                        System.out.println(espace.toString());
+                    });
+                    break;
+                case 5:
+                    System.out.println("Déconnexion réussie.");
+                    return;
+                default:
+                    System.out.println("Option invalide. Essayez encore.");
+            }
+        }
     }
+
+    private static Space collectSpaceDetails(Scanner scanner) {
+        System.out.print("Entrez le nom de l'espace : ");
+        String nom = scanner.nextLine();
+        System.out.print("Entrez la description : ");
+        String description = scanner.nextLine();
+        System.out.print("Entrez la taille (m²) : ");
+        int taille = scanner.nextInt();
+        scanner.nextLine(); // Consommer la ligne
+        System.out.print("Entrez la capacité : ");
+        int capacite = scanner.nextInt();
+        scanner.nextLine(); // Consommer la ligne
+        System.out.print("Entrez le type d'espace (ex: salle de réunion, espace de coworking) : ");
+        String typeEspace = scanner.nextLine();
+        System.out.print("Entrez le prix journalier : ");
+        BigDecimal prixJournee = scanner.nextBigDecimal();
+        scanner.nextLine(); // Consommer la ligne
+        System.out.print("Espace disponible (true/false) : ");
+        boolean disponibilite = scanner.nextBoolean();
+        scanner.nextLine(); // Consommer la ligne
+
+        System.out.print("Entrez les équipements (séparés par des virgules) : ");
+        String equipementsInput = scanner.nextLine();
+        List<String> equipements = Arrays.asList(equipementsInput.split(",\\s*"));
+
+        return new Space(0, nom, description, taille, equipements, capacite, typeEspace, prixJournee, disponibilite, LocalDateTime.now());
+    }
+
 
     private static Membre collectMembreDetails(Scanner scanner) {
         System.out.print("Entrez le nom : ");

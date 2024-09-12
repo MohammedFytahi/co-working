@@ -110,4 +110,21 @@ public class Space {
     public void setDateCreation(LocalDateTime dateCreation) {
         this.dateCreation = dateCreation;
     }
+
+    @Override
+    public String toString() {
+        return "Space{" +
+
+                ", nom='" + nom + '\'' +
+                ", description='" + description + '\'' +
+                ", taille=" + taille +
+                ", equipements=" + equipements +
+                ", capacite=" + capacite +
+                ", typeEspace='" + typeEspace + '\'' +
+                ", prixJournee=" + prixJournee +
+                ", disponibilite=" + disponibilite +
+                ", dateCreation=" + dateCreation +
+                '}';
+    }
+
 }
