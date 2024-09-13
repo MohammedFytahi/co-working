@@ -13,16 +13,8 @@ import com.workpal.model.Membre;
 import com.workpal.model.Manager;
 import com.workpal.model.Reservation;
 import com.workpal.model.Space;
-import com.workpal.repository.AdminRepository;
-import com.workpal.repository.MembreRepository;
-import com.workpal.repository.PersonneRepository;
-import com.workpal.repository.ReservationRepository;
-import com.workpal.repository.SpaceRepository;
-import com.workpal.service.AdminService;
-import com.workpal.service.MembreService;
-import com.workpal.service.PersonneService;
-import com.workpal.service.ReservationService;
-import com.workpal.service.SpaceService;
+import com.workpal.repository.*;
+import com.workpal.service.*;
 import com.workpal.util.InputValidator;
 
 public class Main {
@@ -187,7 +179,9 @@ public class Main {
                 viewReservedSpaces(reservationService);
                     break;
                 case 4:
-                    // Implémenter la fonctionnalité de sauvegarde des espaces favoris
+                    FavoriRepository favoriRepository = new FavoriRepository();
+                    FavoriService favoriService = new FavoriService(favoriRepository);
+                    manageFavoris(favoriService);
                     break;
                 case 5:
                     // Implémenter la consultation du calendrier des événements
@@ -269,6 +263,54 @@ public class Main {
             }
         } catch (Exception e) {
             System.out.println("Erreur lors de l'affichage des détails des espaces réservés : " + e.getMessage());
+        }
+    }
+
+    private static void manageFavoris(FavoriService favoriService) {
+        if (connectedMemberId == null) {
+            System.out.println("Vous devez être connecté pour gérer les favoris.");
+            return;
+        }
+
+        while (true) {
+            System.out.println("=== Gestion des Espaces Favoris ===");
+            System.out.println("1. Ajouter un espace aux favoris");
+            System.out.println("2. Supprimer un espace des favoris");
+            System.out.println("3. Retour au menu principal");
+            System.out.print("Choisissez une option : ");
+            int choix = scanner.nextInt();
+            scanner.nextLine(); // Consommer la ligne
+
+            switch (choix) {
+                case 1:
+                    System.out.print("Entrez l'ID de l'espace à ajouter aux favoris : ");
+                    int espaceIdToAdd = scanner.nextInt();
+                    scanner.nextLine(); // Consommer la ligne
+                    if (favoriService.addFavori(connectedMemberId, espaceIdToAdd)) {
+                        System.out.println("Espace ajouté aux favoris avec succès.");
+                    } else {
+                        System.out.println("Erreur lors de l'ajout de l'espace aux favoris.");
+                    }
+                    break;
+
+                case 2:
+                    System.out.print("Entrez l'ID de l'espace à supprimer des favoris : ");
+                    int espaceIdToRemove = scanner.nextInt();
+                    scanner.nextLine(); // Consommer la ligne
+                    if (favoriService.removeFavori(connectedMemberId, espaceIdToRemove)) {
+                        System.out.println("Espace supprimé des favoris avec succès.");
+                    } else {
+                        System.out.println("Erreur lors de la suppression de l'espace des favoris.");
+                    }
+                    break;
+
+                case 3:
+                    // Retourner au menu principal
+                    return;
+
+                default:
+                    System.out.println("Option invalide, veuillez choisir une option valide.");
+            }
         }
     }
 
