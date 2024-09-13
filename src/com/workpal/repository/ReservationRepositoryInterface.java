@@ -4,6 +4,7 @@ import com.workpal.model.Reservation;
 import com.workpal.model.Space;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -13,4 +14,5 @@ public interface ReservationRepositoryInterface {
     List<Reservation> getReservationsByMembreId(int idMembre) throws SQLException;
     void deleteReservation(int idReservation) throws SQLException;
     List<Space> getReservedSpacesByMembreId(int idMembre) throws SQLException;
+    List<Reservation> getReservationsByDateRange(LocalDateTime startDate, LocalDateTime endDate) throws SQLException;
 }

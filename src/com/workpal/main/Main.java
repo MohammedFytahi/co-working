@@ -362,56 +362,124 @@ public class Main {
             int choix = scanner.nextInt();
             scanner.nextLine(); // Consommer la ligne
 
-            switch (choix) {
-                case 1:
-                    // Implement add member functionality
-                    break;
-                case 2:
-                    // Implement add manager functionality
-                    break;
-                case 3:
-                    // Implement modify member functionality
-                    break;
-                case 4:
-                    // Implement modify manager functionality
-                    break;
-                case 5:
-                    // Implement delete member functionality
-                    break;
-                case 6:
-                    // Implement delete manager functionality
-                    break;
-                case 7:
-                    System.out.println("Déconnexion réussie.");
-                    return;
-                default:
-                    System.out.println("Option invalide. Essayez encore.");
+
+                // Implement the admin menu here
+                switch (choix) {
+                    case 1:
+                        Membre nouveauMembre = collectMembreDetails(scanner);
+                        adminService.ajouterMembre(nouveauMembre);
+                        System.out.println("Membre ajouté avec succès.");
+                        break;
+                    case 2:
+                        Manager nouveauManager = collectManagerDetails(scanner);
+                        adminService.ajouterManager(nouveauManager);
+                        System.out.println("Manager ajouté avec succès.");
+                        break;
+                    case 3:
+                        System.out.print("Entrez l'ID du membre à modifier : ");
+                        int idMembre = scanner.nextInt();
+                        scanner.nextLine(); // Consommer la ligne
+                        Membre membreAModifier = adminService.trouverMembreParId(idMembre);
+                        if (membreAModifier != null) {
+                            Membre membreModifie = collectMembreDetails(scanner);
+                            membreModifie.setId(idMembre);
+                            adminService.modifierMembre(membreModifie);
+                            System.out.println("Membre modifié avec succès.");
+                        } else {
+                            System.out.println("Membre non trouvé.");
+                        }
+                        break;
+                    case 4:
+                        System.out.print("Entrez l'ID du manager à modifier : ");
+                        int idManager = scanner.nextInt();
+                        scanner.nextLine(); // Consommer la ligne
+                        Manager managerAModifier = adminService.trouverManagerParId(idManager);
+                        if (managerAModifier != null) {
+                            Manager managerModifie = collectManagerDetails(scanner);
+                            managerModifie.setId(idManager);
+                            adminService.modifierManager(managerModifie);
+                            System.out.println("Manager modifié avec succès.");
+                        } else {
+                            System.out.println("Manager non trouvé.");
+                        }
+                        break;
+                    case 5:
+                        System.out.print("Entrez l'ID du membre à supprimer : ");
+                        int membreId = scanner.nextInt();
+                        scanner.nextLine(); // Consommer la ligne
+                        adminService.supprimerMembre(membreId);
+                        System.out.println("Membre supprimé avec succès.");
+                        break;
+                    case 6:
+                        System.out.print("Entrez l'ID du manager à supprimer : ");
+                        int managerId = scanner.nextInt();
+                        scanner.nextLine(); // Consommer la ligne
+                        adminService.supprimerManager(managerId);
+                        System.out.println("Manager supprimé avec succès.");
+                        break;
+                    case 7:
+                        System.out.println("Déconnexion réussie.");
+                        return;
+                    default:
+                        System.out.println("Option invalide. Essayez encore.");
+                }
             }
         }
-    }
 
-    private static void afficherMenuManager(SpaceService spaceService) {
+    private static void afficherMenuManager(SpaceService spaceService) throws SQLException {
         while (true) {
             System.out.println("=== Menu Manager ===");
-            System.out.println("1. Ajouter un espace");
+            System.out.println("1. Ajouter un espace de travail ou une salle de réunion");
             System.out.println("2. Modifier un espace");
             System.out.println("3. Supprimer un espace");
-            System.out.println("4. Déconnexion");
+            System.out.println("4. Afficher tous les espaces");
+            System.out.println("5. Afficher tous les espaces");
+            System.out.println("6. manage Reservations");
+            System.out.println("7. Déconnexion");
             System.out.print("Choisissez une option : ");
             int choix = scanner.nextInt();
             scanner.nextLine(); // Consommer la ligne
 
             switch (choix) {
                 case 1:
-                    // Implement add space functionality
+                    Space newSpace = collectSpaceDetails(scanner);
+                    spaceService.addSpace(newSpace);
+                    System.out.println("Espace ajouté avec succès.");
                     break;
                 case 2:
-                    // Implement modify space functionality
+                    System.out.print("Entrez l'ID de l'espace à modifier : ");
+                    int idEspace = scanner.nextInt();
+                    scanner.nextLine(); // Consommer la ligne
+                    Space espaceAModifier = spaceService.getSpaceById(idEspace);
+                    if (espaceAModifier != null) {
+                        Space espaceModifie = collectSpaceDetails(scanner);
+                        espaceModifie.setIdEspace(idEspace);
+                        spaceService.updateSpace(espaceModifie);
+                        System.out.println("Espace modifié avec succès.");
+                    } else {
+                        System.out.println("Espace non trouvé.");
+                    }
                     break;
                 case 3:
-                    // Implement delete space functionality
+                    System.out.print("Entrez l'ID de l'espace à supprimer : ");
+                    int id = scanner.nextInt();
+                    scanner.nextLine(); // Consommer la ligne
+                    spaceService.deleteSpace(id);
+                    System.out.println("Espace supprimé avec succès.");
                     break;
                 case 4:
+                    System.out.println("Liste des espaces :");
+                    List<Space> espaces = spaceService.getAllSpaces();
+                    espaces.forEach(espace -> {
+                        System.out.println(espace.toString());
+                    });
+                    break;
+                case 5:
+                    ReservationRepository reservationRepository = new ReservationRepository();
+                    ReservationService reservationService = new ReservationService(reservationRepository);
+                    manageReservations(reservationService);
+                    break;
+                case 6:
                     System.out.println("Déconnexion réussie.");
                     return;
                 default:
@@ -419,4 +487,99 @@ public class Main {
             }
         }
     }
+
+    private static Space collectSpaceDetails(Scanner scanner) {
+        System.out.print("Entrez le nom de l'espace : ");
+        String nom = scanner.nextLine();
+        System.out.print("Entrez la description : ");
+        String description = scanner.nextLine();
+        System.out.print("Entrez la taille (m²) : ");
+        int taille = scanner.nextInt();
+        scanner.nextLine(); // Consommer la ligne
+        System.out.print("Entrez la capacité : ");
+        int capacite = scanner.nextInt();
+        scanner.nextLine(); // Consommer la ligne
+        System.out.print("Entrez le type d'espace (ex: salle de réunion, espace de coworking) : ");
+        String typeEspace = scanner.nextLine();
+        System.out.print("Entrez le prix journalier : ");
+        BigDecimal prixJournee = scanner.nextBigDecimal();
+        scanner.nextLine(); // Consommer la ligne
+        System.out.print("Espace disponible (true/false) : ");
+        boolean disponibilite = scanner.nextBoolean();
+        scanner.nextLine(); // Consommer la ligne
+
+        System.out.print("Entrez les équipements (séparés par des virgules) : ");
+        String equipementsInput = scanner.nextLine();
+        List<String> equipements = Arrays.asList(equipementsInput.split(",\\s*"));
+
+        return new Space(0, nom, description, taille, equipements, capacite, typeEspace, prixJournee, disponibilite, LocalDateTime.now());
+    }
+
+
+    private static Membre collectMembreDetails(Scanner scanner) {
+        System.out.print("Entrez le nom : ");
+        String name = scanner.nextLine();
+        System.out.print("Entrez l'email : ");
+        String email = scanner.nextLine();
+        System.out.print("Entrez le mot de passe : ");
+        String password = scanner.nextLine();
+        System.out.print("Entrez l'adresse : ");
+        String address = scanner.nextLine();
+        System.out.print("Entrez le téléphone : ");
+        String phone = scanner.nextLine();
+        return new Membre(name, email, password, address, phone);
+    }
+    private static Manager collectManagerDetails(Scanner scanner) {
+        System.out.print("Entrez le nom : ");
+        String name = scanner.nextLine();
+        System.out.print("Entrez l'email : ");
+        String email = scanner.nextLine();
+        System.out.print("Entrez le mot de passe : ");
+        String password = scanner.nextLine();
+        System.out.print("Entrez l'adresse : ");
+        String address = scanner.nextLine();
+        System.out.print("Entrez le téléphone : ");
+        String phone = scanner.nextLine();
+        return new Manager(name, email, password, address, phone);
+    }
+
+
+    private static void manageReservations(ReservationService reservationService) {
+        System.out.println("=== Gestion des Réservations ===");
+        System.out.println("1. Voir les réservations en cours et futures");
+        System.out.println("2. Voir les réservations passées");
+        System.out.println("3. Retour");
+
+        System.out.print("Choisissez une option : ");
+        int choix = scanner.nextInt();
+        scanner.nextLine(); // Consommer la ligne
+
+        switch (choix) {
+            case 1:
+                List<Reservation> ongoingReservations = reservationService.getOngoingAndFutureReservations();
+                if (ongoingReservations != null && !ongoingReservations.isEmpty()) {
+                    ongoingReservations.forEach(System.out::println);
+                } else {
+                    System.out.println("Aucune réservation en cours ou future.");
+                }
+                break;
+
+            case 2:
+                List<Reservation> pastReservations = reservationService.getPastReservations();
+                if (pastReservations != null && !pastReservations.isEmpty()) {
+                    pastReservations.forEach(System.out::println);
+                } else {
+                    System.out.println("Aucune réservation passée.");
+                }
+                break;
+
+            case 3:
+                // Retour au menu principal
+                return;
+
+            default:
+                System.out.println("Option invalide.");
+        }
+    }
+
 }

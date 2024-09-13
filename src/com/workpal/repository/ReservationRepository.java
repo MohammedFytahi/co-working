@@ -4,6 +4,7 @@ import com.workpal.database.DatabaseConnection;
 import com.workpal.model.Reservation;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import com.workpal.model.Space;
@@ -116,5 +117,43 @@ public class ReservationRepository implements ReservationRepositoryInterface {
         }
         return spaces;
     }
+
+    @Override
+    public List<Reservation> getReservationsByDateRange(LocalDateTime startDate, LocalDateTime endDate) throws SQLException {
+        List<Reservation> reservations = new ArrayList<>();
+        String sql = "SELECT * FROM reservation WHERE ";
+
+        if (startDate != null && endDate == null) {
+            // Réservations en cours et futures
+            sql += "date_fin >= ?";
+        } else if (startDate == null && endDate != null) {
+            // Réservations passées
+            sql += "date_fin < ?";
+        } else {
+            return reservations; // Pas de requête valide si les deux sont nulles
+        }
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            if (startDate != null) {
+                pstmt.setTimestamp(1, Timestamp.valueOf(startDate));
+            } else {
+                pstmt.setTimestamp(1, Timestamp.valueOf(endDate));
+            }
+
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                reservations.add(new Reservation(
+                        rs.getInt("id_reservation"),
+                        rs.getInt("id_membre"),
+                        rs.getInt("id_espace"),
+                        rs.getTimestamp("date_reservation").toLocalDateTime(),
+                        rs.getTimestamp("date_debut").toLocalDateTime(),
+                        rs.getTimestamp("date_fin").toLocalDateTime()
+                ));
+            }
+        }
+        return reservations;
+    }
+
 
 }

@@ -5,6 +5,7 @@ import com.workpal.model.Space;
 import com.workpal.repository.ReservationRepositoryInterface;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class ReservationService {
@@ -60,6 +61,25 @@ public class ReservationService {
             return reservationRepository.getReservedSpacesByMembreId(idMembre);
         } catch (SQLException e) {
             System.err.println("Error getting reserved spaces: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public List<Reservation> getOngoingAndFutureReservations() {
+        try {
+            return reservationRepository.getReservationsByDateRange(LocalDateTime.now(), null);
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération des réservations en cours/futures: " + e.getMessage());
+            return null;
+        }
+    }
+
+    // Obtenir les réservations passées
+    public List<Reservation> getPastReservations() {
+        try {
+            return reservationRepository.getReservationsByDateRange(null, LocalDateTime.now());
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération des réservations passées: " + e.getMessage());
             return null;
         }
     }

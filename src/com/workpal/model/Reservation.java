@@ -26,9 +26,6 @@ public class Reservation {
         this.dateFin = dateFin;
     }
 
-    public Reservation(int membreId, int espaceId, LocalDateTime dateTimeReservation) {
-    }
-
     // Getters and setters
 
     public int getIdReservation() {
