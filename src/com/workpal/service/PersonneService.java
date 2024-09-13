@@ -3,6 +3,7 @@ package com.workpal.service;
 import com.workpal.model.Personne;
 import com.workpal.repository.PersonneRepository;
 
+import java.sql.SQLException;
 import java.util.Optional;
 
 public class PersonneService {
@@ -18,5 +19,8 @@ public class PersonneService {
             return personne.get().getRole();
         }
         return null;
+    }
+    public Personne findByEmail(String email) throws SQLException {
+        return personneRepository.findByEmail(email);
     }
 }

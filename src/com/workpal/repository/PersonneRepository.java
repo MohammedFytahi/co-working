@@ -44,4 +44,23 @@ public class PersonneRepository implements PersonneRepositoryInterface {
         }
         return Optional.ofNullable(personne);
     }
+
+    public Personne findByEmail(String email) throws SQLException {
+        String query = "SELECT * FROM personne WHERE email = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, email);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    // Assurez-vous que les noms des colonnes correspondent à ceux de la base de données
+                    Personne personne = new Personne();
+                    personne.setId(resultSet.getInt("id")); // Assurez-vous que 'id' est le nom correct de la colonne
+                    personne.setEmail(resultSet.getString("email"));
+                    personne.setPassword(resultSet.getString("mot_de_passe")); // Assurez-vous que 'mot_de_passe' est correct
+                    personne.setRole(resultSet.getString("role")); // Assurez-vous que 'role' est correct
+                    return personne;
+                }
+            }
+        }
+        return null;
+    }
 }

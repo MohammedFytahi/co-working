@@ -2,6 +2,8 @@ package com.workpal.repository;
 
 import com.workpal.database.DatabaseConnection;
 import com.workpal.model.Space;
+
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -134,6 +136,31 @@ public class SpaceRepository {
                     spaces.add(space);
                 }
             }
+        }
+        return spaces;
+    }
+
+    public List<Space> findAvailableSpaces() {
+        List<Space> spaces = new ArrayList<>();
+        String query = "SELECT * FROM espace WHERE disponibilite = TRUE";
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                int id = rs.getInt("id_espace");
+                String nom = rs.getString("nom");
+                String description = rs.getString("description");
+                int taille = rs.getInt("taille");
+                String[] equipements = (String[]) rs.getArray("equipements").getArray();
+                int capacite = rs.getInt("capacite");
+                String typeEspace = rs.getString("type_espace");
+                BigDecimal prixJournee = rs.getBigDecimal("prix_journee");
+                boolean disponibilite = rs.getBoolean("disponibilite");
+                Timestamp dateCreation = rs.getTimestamp("date_creation");
+                Space space = new Space(id, nom, description, taille, List.of(equipements), capacite, typeEspace, prixJournee, disponibilite, dateCreation.toLocalDateTime());
+                spaces.add(space);
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la récupération des espaces disponibles : " + e.getMessage());
         }
         return spaces;
     }

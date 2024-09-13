@@ -28,28 +28,22 @@ public class MembreRepository implements MembreRepositoryInterface {
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String selectMembreQuery = "SELECT * FROM membre WHERE id = ?";
-                PreparedStatement selectMembreStatement = connection.prepareStatement(selectMembreQuery);
-                selectMembreStatement.setInt(1, id);
-                ResultSet membreResultSet = selectMembreStatement.executeQuery();
-
-                if (membreResultSet.next()) {
-                    membre = new Membre(
-                            id,
-                            resultSet.getString("name"),
-                            resultSet.getString("email"),
-                            resultSet.getString("password"),
-                            resultSet.getString("address"),
-                            resultSet.getString("phone")
-                    );
-                }
+                // Assuming the `personne` table has the necessary fields to create a `Membre` object
+                membre = new Membre(
+                        resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("email"),
+                        resultSet.getString("password"),
+                        resultSet.getString("address"),
+                        resultSet.getString("phone")
+                );
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return Optional.ofNullable(membre);
     }
+
 
     @Override
     public void createMembre(Membre membre) {

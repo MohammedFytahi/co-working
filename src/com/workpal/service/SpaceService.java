@@ -48,4 +48,8 @@ public class SpaceService {
         }
     }
 
+    public List<Space> getAvailableSpaces() {
+        return spaceRepository.findAvailableSpaces();
+    }
+
 }

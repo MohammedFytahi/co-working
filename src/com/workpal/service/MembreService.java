@@ -5,6 +5,7 @@ import com.workpal.repository.MembreRepositoryInterface;
 import com.workpal.util.EmailSender;
 import com.workpal.util.PasswordGenerator;
 
+import java.sql.SQLException;
 import java.util.Optional;
 
 public class MembreService {
@@ -61,6 +62,10 @@ public class MembreService {
         } else {
             System.out.println("Aucun membre trouvé avec cet e-mail.");
         }
+    }
+
+    public Optional<Membre> findByEmail(String email) throws SQLException {
+        return membreRepository.findByEmail(email);
     }
 
 }
