@@ -6,6 +6,7 @@ import com.workpal.model.Reservation;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import com.workpal.model.Space;
 
 public class ReservationRepository implements ReservationRepositoryInterface {
     private final Connection connection;
@@ -86,4 +87,34 @@ public class ReservationRepository implements ReservationRepositoryInterface {
             pstmt.executeUpdate();
         }
     }
+    @Override
+    public List<Space> getReservedSpacesByMembreId(int idMembre) throws SQLException {
+        String sql = "SELECT e.* " +
+                "FROM reservation r " +
+                "JOIN espace e ON r.id_espace = e.id_espace " +
+                "WHERE r.id_membre = ?";
+        List<Space> spaces = new ArrayList<>();
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, idMembre);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Space space = new Space(
+                            rs.getInt("id_espace"),
+                            rs.getString("nom"),
+                            rs.getString("description"),
+                            rs.getInt("taille"),
+                            List.of(rs.getArray("equipements") != null ? (String[]) rs.getArray("equipements").getArray() : new String[]{}),
+                            rs.getInt("capacite"),
+                            rs.getString("type_espace"),
+                            rs.getBigDecimal("prix_journee"),
+                            rs.getBoolean("disponibilite"),
+                            rs.getTimestamp("date_creation").toLocalDateTime()
+                    );
+                    spaces.add(space);
+                }
+            }
+        }
+        return spaces;
+    }
+
 }

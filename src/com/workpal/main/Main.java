@@ -184,7 +184,7 @@ public class Main {
                     reserveSpace(spaceService, reservationService);
                     break;
                 case 3:
-//                    viewReservationDetails(reservationService);
+                viewReservedSpaces(reservationService);
                     break;
                 case 4:
                     // Implémenter la fonctionnalité de sauvegarde des espaces favoris
@@ -243,7 +243,34 @@ public class Main {
         }
     }
 
+    private static void viewReservedSpaces(ReservationService reservationService) {
+        if (connectedMemberId == null) {
+            System.out.println("Vous devez être connecté pour voir les espaces réservés.");
+            return;
+        }
 
+        try {
+            List<Space> reservedSpaces = reservationService.getReservedSpacesByMembreId(connectedMemberId);
+            if (reservedSpaces.isEmpty()) {
+                System.out.println("Aucune réservation trouvée.");
+            } else {
+                for (Space space : reservedSpaces) {
+                    System.out.println("=== Détails de l'espace réservé ===");
+                    System.out.println("ID de l'espace: " + space.getIdEspace());
+                    System.out.println("Nom: " + space.getNom());
+                    System.out.println("Description: " + space.getDescription());
+                    System.out.println("Taille: " + space.getTaille());
+                    System.out.println("Type: " + space.getTypeEspace());
+                    System.out.println("Prix: " + space.getPrixJournee());
+                    System.out.println("Équipements: " + String.join(", ", space.getEquipements()));
+                    System.out.println("Date de création: " + space.getDateCreation());
+                    System.out.println();
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Erreur lors de l'affichage des détails des espaces réservés : " + e.getMessage());
+        }
+    }
 
     private static void searchSpacesByType() {
         System.out.print("Entrez le type d'espace (ex: 'salle de réunion', 'espace de coworking') : ");

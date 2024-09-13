@@ -1,6 +1,7 @@
 package com.workpal.service;
 
 import com.workpal.model.Reservation;
+import com.workpal.model.Space;
 import com.workpal.repository.ReservationRepositoryInterface;
 
 import java.sql.SQLException;
@@ -54,5 +55,12 @@ public class ReservationService {
         }
     }
 
-
+    public List<Space> getReservedSpacesByMembreId(int idMembre) {
+        try {
+            return reservationRepository.getReservedSpacesByMembreId(idMembre);
+        } catch (SQLException e) {
+            System.err.println("Error getting reserved spaces: " + e.getMessage());
+            return null;
+        }
+    }
 }
