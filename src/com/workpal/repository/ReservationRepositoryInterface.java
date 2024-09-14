@@ -15,4 +15,5 @@ public interface ReservationRepositoryInterface {
     void deleteReservation(int idReservation) throws SQLException;
     List<Space> getReservedSpacesByMembreId(int idMembre) throws SQLException;
     List<Reservation> getReservationsByDateRange(LocalDateTime startDate, LocalDateTime endDate) throws SQLException;
+    void updateReservation(Reservation reservation) throws SQLException;
 }

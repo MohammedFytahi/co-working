@@ -9,10 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-import com.workpal.model.Membre;
-import com.workpal.model.Manager;
-import com.workpal.model.Reservation;
-import com.workpal.model.Space;
+import com.workpal.model.*;
 import com.workpal.repository.*;
 import com.workpal.service.*;
 import com.workpal.util.InputValidator;
@@ -27,12 +24,16 @@ public class Main {
         AdminRepository adminRepository = new AdminRepository();
         ReservationRepository reservationRepository = new ReservationRepository();
         SpaceRepository spaceRepository = new SpaceRepository();
+        SubscriptionPlanRepository subscriptionPlanRepository = new SubscriptionPlanRepository();
+
 
         PersonneService personneService = new PersonneService(personneRepository);
         MembreService membreService = new MembreService(membreRepository);
         AdminService adminService = new AdminService(adminRepository);
         ReservationService reservationService = new ReservationService(reservationRepository);
         SpaceService spaceService = new SpaceService(spaceRepository);
+        SubscriptionPlanService subscriptionPlanService = new SubscriptionPlanService(subscriptionPlanRepository);
+
 
         while (true) {
             System.out.println("=== Menu Principal ===");
@@ -50,7 +51,7 @@ public class Main {
                         createAccount(membreService);
                         break;
                     case 2:
-                        login( personneService,  membreService,  adminService,  spaceService,  reservationService);
+                        login( personneService,  membreService,  adminService,  spaceService,  reservationService, subscriptionPlanService);
                         break;
                     case 3:
                         resetPassword(membreService);
@@ -108,7 +109,7 @@ public class Main {
 
     private static Integer connectedMemberId = null; // Stockage de l'ID du membre connecté
 
-    private static void login(PersonneService personneService, MembreService membreService, AdminService adminService, SpaceService spaceService, ReservationService reservationService) throws SQLException {
+    private static void login(PersonneService personneService, MembreService membreService, AdminService adminService, SpaceService spaceService, ReservationService reservationService, SubscriptionPlanService subscriptionPlanService) throws SQLException {
         System.out.print("Entrez l'email : ");
         String loginEmail = scanner.nextLine();
         System.out.print("Entrez le mot de passe : ");
@@ -137,13 +138,14 @@ public class Main {
                     afficherMenuAdmin(adminService);
                     break;
                 case "manager":
-                    afficherMenuManager(spaceService);
+                    afficherMenuManager(spaceService, subscriptionPlanService); // Passer subscriptionPlanService ici
                     break;
             }
         } else {
             System.out.println("Erreur : Email ou mot de passe incorrect.");
         }
     }
+
 
 
 
@@ -426,21 +428,25 @@ public class Main {
             }
         }
 
-    private static void afficherMenuManager(SpaceService spaceService) throws SQLException {
+    private static void afficherMenuManager(SpaceService spaceService, SubscriptionPlanService subscriptionPlanService) throws SQLException {
         while (true) {
             System.out.println("=== Menu Manager ===");
             System.out.println("1. Ajouter un espace de travail ou une salle de réunion");
             System.out.println("2. Modifier un espace");
             System.out.println("3. Supprimer un espace");
             System.out.println("4. Afficher tous les espaces");
-            System.out.println("5. Afficher tous les espaces");
-            System.out.println("6. manage Reservations");
-            System.out.println("7. Déconnexion");
+            System.out.println("5. Gérer les réservations");
+            System.out.println("6. Ajouter un plan d'abonnement");
+            System.out.println("7. Modifier un plan d'abonnement");
+            System.out.println("8. Supprimer un plan d'abonnement");
+            System.out.println("9. Afficher tous les plans d'abonnement");
+            System.out.println("10. Déconnexion");
             System.out.print("Choisissez une option : ");
             int choix = scanner.nextInt();
             scanner.nextLine(); // Consommer la ligne
 
             switch (choix) {
+                // Gestion des espaces
                 case 1:
                     Space newSpace = collectSpaceDetails(scanner);
                     spaceService.addSpace(newSpace);
@@ -474,18 +480,79 @@ public class Main {
                         System.out.println(espace.toString());
                     });
                     break;
+
+                // Gestion des réservations
                 case 5:
                     ReservationRepository reservationRepository = new ReservationRepository();
                     ReservationService reservationService = new ReservationService(reservationRepository);
                     manageReservations(reservationService);
                     break;
+
+                // Gestion des plans d'abonnement
                 case 6:
+                    SubscriptionPlan newPlan = collectSubscriptionPlanDetails(scanner);
+                    subscriptionPlanService.addSubscriptionPlan(newPlan);
+                    System.out.println("Plan d'abonnement ajouté avec succès.");
+                    break;
+                case 7:
+                    System.out.print("Entrez l'ID du plan d'abonnement à modifier : ");
+                    int idPlan = scanner.nextInt();
+                    scanner.nextLine(); // Consommer la ligne
+                    SubscriptionPlan planToUpdate = subscriptionPlanService.getAllSubscriptionPlans().stream()
+                            .filter(p -> p.getId() == idPlan)
+                            .findFirst()
+                            .orElse(null);
+                    if (planToUpdate != null) {
+                        SubscriptionPlan updatedPlan = collectSubscriptionPlanDetails(scanner);
+                        updatedPlan.setId(idPlan);
+                        subscriptionPlanService.updateSubscriptionPlan(updatedPlan);
+                        System.out.println("Plan d'abonnement modifié avec succès.");
+                    } else {
+                        System.out.println("Plan d'abonnement non trouvé.");
+                    }
+                    break;
+                case 8:
+                    System.out.print("Entrez l'ID du plan d'abonnement à supprimer : ");
+                    int idPlanToDelete = scanner.nextInt();
+                    scanner.nextLine(); // Consommer la ligne
+                    subscriptionPlanService.deleteSubscriptionPlan(idPlanToDelete);
+                    System.out.println("Plan d'abonnement supprimé avec succès.");
+                    break;
+                case 9:
+                    System.out.println("Liste des plans d'abonnement :");
+                    List<SubscriptionPlan> plans = subscriptionPlanService.getAllSubscriptionPlans();
+                    if (plans != null && !plans.isEmpty()) {
+                        plans.forEach(plan -> {
+                            System.out.println(plan.toString());
+                        });
+                    } else {
+                        System.out.println("Aucun plan d'abonnement disponible.");
+                    }
+                    break;
+
+                // Déconnexion
+                case 10:
                     System.out.println("Déconnexion réussie.");
                     return;
                 default:
                     System.out.println("Option invalide. Essayez encore.");
             }
         }
+    }
+
+    private static SubscriptionPlan collectSubscriptionPlanDetails(Scanner scanner) {
+        System.out.print("Entrez le nom du plan : ");
+        String name = scanner.nextLine();
+        System.out.print("Entrez la description : ");
+        String description = scanner.nextLine();
+        System.out.print("Entrez le prix : ");
+        BigDecimal price = scanner.nextBigDecimal();
+        scanner.nextLine(); // Consommer la ligne
+        System.out.print("Entrez la durée (en jours) : ");
+        int durationInDays = scanner.nextInt();
+        scanner.nextLine(); // Consommer la ligne
+
+        return new SubscriptionPlan(0, name, description, price, durationInDays);
     }
 
     private static Space collectSpaceDetails(Scanner scanner) {

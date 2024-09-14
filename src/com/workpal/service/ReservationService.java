@@ -83,4 +83,16 @@ public class ReservationService {
             return null;
         }
     }
+
+    public boolean updateReservation(Reservation reservation) {
+        try {
+            // Assuming the repository has an update method
+            reservationRepository.updateReservation(reservation);
+            System.out.println("Réservation modifiée avec succès !");
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la modification de la réservation: " + e.getMessage());
+            return false;
+        }
+        return true;
+    }
 }

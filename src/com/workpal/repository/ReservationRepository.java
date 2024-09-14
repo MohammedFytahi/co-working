@@ -155,5 +155,17 @@ public class ReservationRepository implements ReservationRepositoryInterface {
         return reservations;
     }
 
+    @Override
+    public void updateReservation(Reservation reservation) throws SQLException {
+        String sql = "UPDATE reservation SET id_membre = ?, id_espace = ?, date_debut = ?, date_fin = ? WHERE id_reservation = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, reservation.getIdMembre());
+            pstmt.setInt(2, reservation.getIdEspace());
+            pstmt.setTimestamp(3, Timestamp.valueOf(reservation.getDateDebut()));
+            pstmt.setTimestamp(4, Timestamp.valueOf(reservation.getDateFin()));
+            pstmt.setInt(5, reservation.getIdReservation());
+            pstmt.executeUpdate();
+        }
+    }
 
 }
