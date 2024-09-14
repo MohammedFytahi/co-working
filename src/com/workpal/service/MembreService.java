@@ -37,26 +37,26 @@ public class MembreService {
         return false;
     }
 
-    public Membre trouverParId(int idMembre) {
+    public Optional<Membre> trouverParId(int idMembre) throws SQLException {
         return membreRepository.trouverParId(idMembre);
     }
 
-    // Method to update member's personal information
-    public void mettreAJourInfosPersonnelles(Membre membre) {
+
+    public void mettreAJourInfosPersonnelles(Optional<Membre> membre) {
         membreRepository.mettreAJourInfosPersonnelles(membre);
     }
 
     public void recupererMotDePasse(String email) {
-        // Check if member exists
+
         Membre membre = membreRepository.trouverParEmail(email);
         if (membre != null) {
-            // Generate temporary password
+
             String tempPassword = PasswordGenerator.genererMotDePasseTemporaire();
 
-            // Send the temporary password via email
+
             EmailSender.envoyerEmail(membre.getEmail(), tempPassword);
 
-            // Update the member's password in the database
+
             membre.setPassword(tempPassword);
             membreRepository.mettreAJourMotDePasse(membre);
         } else {

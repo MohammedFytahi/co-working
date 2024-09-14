@@ -1,19 +1,25 @@
 package com.workpal.service;
 
+import com.workpal.model.Membre;
 import com.workpal.model.Reservation;
 import com.workpal.model.Space;
+import com.workpal.repository.MembreRepositoryInterface;
 import com.workpal.repository.ReservationRepositoryInterface;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public class ReservationService {
     private final ReservationRepositoryInterface reservationRepository;
+    private final MembreRepositoryInterface membreRepository;
 
-    public ReservationService(ReservationRepositoryInterface reservationRepository) {
+    public ReservationService(ReservationRepositoryInterface reservationRepository, MembreRepositoryInterface membreRepository) {
         this.reservationRepository = reservationRepository;
+        this.membreRepository = membreRepository;
     }
+
 
     // Créer une réservation
     public boolean createReservation(Reservation reservation) {
@@ -60,7 +66,7 @@ public class ReservationService {
         try {
             return reservationRepository.getReservedSpacesByMembreId(idMembre);
         } catch (SQLException e) {
-            System.err.println("Error getting reserved spaces: " + e.getMessage());
+            System.err.println("Erreur lors de la récupération des espaces réservés: " + e.getMessage());
             return null;
         }
     }
@@ -94,5 +100,17 @@ public class ReservationService {
             return false;
         }
         return true;
+    }
+
+    public Optional<String> getMemberEmailById(int memberId) {
+        try {
+            // Trouver le membre par son ID
+            Optional<Membre> optionalMembre = membreRepository.trouverParId(memberId);
+            // Récupérer l'email s'il existe
+            return optionalMembre.map(Membre::getEmail);
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération de l'email du membre: " + e.getMessage());
+            return Optional.empty();
+        }
     }
 }

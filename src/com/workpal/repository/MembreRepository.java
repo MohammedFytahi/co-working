@@ -78,7 +78,7 @@ public class MembreRepository implements MembreRepositoryInterface {
     }
 
     @Override
-    public Membre trouverParId(int idMembre) {
+    public Optional<Membre> trouverParId(int idMembre) {
         String query = "SELECT * FROM membre WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, idMembre);
@@ -91,27 +91,34 @@ public class MembreRepository implements MembreRepositoryInterface {
                     membre.setPassword(resultSet.getString("password"));
                     membre.setAddress(resultSet.getString("address"));
                     membre.setPhone(resultSet.getString("phone"));
-                    return membre;
+                    return Optional.of(membre); // Wrap the Membre object in an Optional
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return Optional.empty(); // Return an empty Optional if no member is found
     }
 
+
     @Override
-    public void mettreAJourInfosPersonnelles(Membre membre) {
-        String query = "UPDATE membre SET address = ?, phone = ? WHERE id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, membre.getAddress());
-            statement.setString(2, membre.getPhone());
-            statement.setInt(3, membre.getId());
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+    public void mettreAJourInfosPersonnelles(Optional<Membre> membreOptional) {
+        if (membreOptional.isPresent()) {
+            Membre membre = membreOptional.get();
+            String query = "UPDATE membre SET address = ?, phone = ? WHERE id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, membre.getAddress());
+                statement.setString(2, membre.getPhone());
+                statement.setInt(3, membre.getId());
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Aucun membre trouvé pour mettre à jour.");
         }
     }
+
 
     @Override
     public void mettreAJourMotDePasse(Membre membre) {

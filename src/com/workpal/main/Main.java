@@ -12,6 +12,7 @@ import java.util.Scanner;
 import com.workpal.model.*;
 import com.workpal.repository.*;
 import com.workpal.service.*;
+import com.workpal.util.EmailSender;
 import com.workpal.util.InputValidator;
 
 public class Main {
@@ -25,14 +26,18 @@ public class Main {
         ReservationRepository reservationRepository = new ReservationRepository();
         SpaceRepository spaceRepository = new SpaceRepository();
         SubscriptionPlanRepository subscriptionPlanRepository = new SubscriptionPlanRepository();
+        MembreSubscriptionRepository membreSubscriptionRepository = new MembreSubscriptionRepository();
+
 
 
         PersonneService personneService = new PersonneService(personneRepository);
         MembreService membreService = new MembreService(membreRepository);
         AdminService adminService = new AdminService(adminRepository);
-        ReservationService reservationService = new ReservationService(reservationRepository);
+        ReservationService reservationService = new ReservationService(reservationRepository, membreRepository);
+
         SpaceService spaceService = new SpaceService(spaceRepository);
         SubscriptionPlanService subscriptionPlanService = new SubscriptionPlanService(subscriptionPlanRepository);
+        MembreSubscriptionService membreSubscriptionService = new MembreSubscriptionService(membreSubscriptionRepository);
 
 
         while (true) {
@@ -51,7 +56,7 @@ public class Main {
                         createAccount(membreService);
                         break;
                     case 2:
-                        login( personneService,  membreService,  adminService,  spaceService,  reservationService, subscriptionPlanService);
+                        login( personneService,  membreService,  adminService,  spaceService,  reservationService, subscriptionPlanService,  membreSubscriptionService);
                         break;
                     case 3:
                         resetPassword(membreService);
@@ -109,7 +114,7 @@ public class Main {
 
     private static Integer connectedMemberId = null; // Stockage de l'ID du membre connecté
 
-    private static void login(PersonneService personneService, MembreService membreService, AdminService adminService, SpaceService spaceService, ReservationService reservationService, SubscriptionPlanService subscriptionPlanService) throws SQLException {
+    private static void login(PersonneService personneService, MembreService membreService, AdminService adminService, SpaceService spaceService, ReservationService reservationService, SubscriptionPlanService subscriptionPlanService, MembreSubscriptionService membreSubscriptionService) throws SQLException {
         System.out.print("Entrez l'email : ");
         String loginEmail = scanner.nextLine();
         System.out.print("Entrez le mot de passe : ");
@@ -132,13 +137,13 @@ public class Main {
             System.out.println("Connexion réussie en tant que " + role + ".");
             switch (role) {
                 case "membre":
-                    afficherMenuMembre(membreService, reservationService, spaceService);
+                    afficherMenuMembre(membreService, reservationService, spaceService, subscriptionPlanService, membreSubscriptionService);
                     break;
                 case "admin":
                     afficherMenuAdmin(adminService);
                     break;
                 case "manager":
-                    afficherMenuManager(spaceService, subscriptionPlanService); // Passer subscriptionPlanService ici
+                    afficherMenuManager(spaceService, subscriptionPlanService);
                     break;
             }
         } else {
@@ -155,8 +160,7 @@ public class Main {
         membreService.recupererMotDePasse(email);
         System.out.println("Si un membre avec cet email existe, un mot de passe temporaire a été envoyé.");
     }
-
-    private static void afficherMenuMembre(MembreService membreService, ReservationService reservationService, SpaceService spaceService) {
+    private static void afficherMenuMembre(MembreService membreService, ReservationService reservationService, SpaceService spaceService, SubscriptionPlanService subscriptionPlanService, MembreSubscriptionService membreSubscriptionService) throws SQLException {
         while (true) {
             System.out.println("=== Menu Membre ===");
             System.out.println("1. Rechercher des espaces disponibles");
@@ -165,7 +169,9 @@ public class Main {
             System.out.println("4. Sauvegarder des espaces favoris");
             System.out.println("5. Consulter le calendrier des événements");
             System.out.println("6. Mettre à jour les informations personnelles");
-            System.out.println("7. Déconnexion");
+            System.out.println("7. Choisir un plan d'abonnement");
+            System.out.println("8. Voir mes abonnements");
+            System.out.println("9. Déconnexion");
             System.out.print("Choisissez une option : ");
             int choix = scanner.nextInt();
             scanner.nextLine(); // Consommer la ligne
@@ -175,10 +181,10 @@ public class Main {
                     searchSpacesByType();
                     break;
                 case 2:
-                    reserveSpace(spaceService, reservationService);
+                    reserveSpace(spaceService, reservationService, membreService);
                     break;
                 case 3:
-                viewReservedSpaces(reservationService);
+                    viewReservedSpaces(reservationService);
                     break;
                 case 4:
                     FavoriRepository favoriRepository = new FavoriRepository();
@@ -186,12 +192,18 @@ public class Main {
                     manageFavoris(favoriService);
                     break;
                 case 5:
-                    // Implémenter la consultation du calendrier des événements
+
                     break;
                 case 6:
                     updatePersonalInfo(membreService);
                     break;
                 case 7:
+                    chooseSubscriptionPlan(subscriptionPlanService, membreSubscriptionService);
+                    break;
+                case 8:
+                    viewMySubscriptions(membreSubscriptionService);
+                    break;
+                case 9:
                     System.out.println("Déconnexion réussie.");
                     return;
                 default:
@@ -199,7 +211,47 @@ public class Main {
             }
         }
     }
-    private static void reserveSpace(SpaceService spaceService, ReservationService reservationService) {
+
+    private static void chooseSubscriptionPlan(SubscriptionPlanService subscriptionPlanService,
+                                               MembreSubscriptionService membreSubscriptionService) {
+        try {
+            List<SubscriptionPlan> plans = subscriptionPlanService.getAllSubscriptionPlans();
+            System.out.println("=== Liste des plans d'abonnement ===");
+            for (SubscriptionPlan plan : plans) {
+                System.out.println(plan.getId() + ". " + plan.getName() + " - " + plan.getPrice() + " EUR pour " + plan.getDurationInDays() + " jours.");
+            }
+
+            System.out.print("Entrez l'ID du plan auquel vous voulez souscrire : ");
+            int planId = scanner.nextInt();
+            scanner.nextLine(); // Consommer la ligne
+
+            membreSubscriptionService.subscribeMemberToPlan(connectedMemberId, planId);
+            System.out.println("Vous avez souscrit au plan avec succès.");
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la souscription : " + e.getMessage());
+        }
+    }
+
+    private static void viewMySubscriptions(MembreSubscriptionService membreSubscriptionService) {
+        try {
+            List<MembreSubscription> subscriptions = membreSubscriptionService.getMemberSubscriptions(connectedMemberId);
+            if (subscriptions.isEmpty()) {
+                System.out.println("Vous n'avez aucun abonnement.");
+            } else {
+                System.out.println("=== Mes abonnements ===");
+                for (MembreSubscription subscription : subscriptions) {
+                    System.out.println("Abonnement ID: " + subscription.getId() +
+                            ", Plan ID: " + subscription.getPlanId() +
+                            ", Date d'abonnement: " + subscription.getSubscriptionDate());
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la consultation des abonnements : " + e.getMessage());
+        }
+    }
+
+
+    private static void reserveSpace(SpaceService spaceService, ReservationService reservationService, MembreService membreService) {
         if (connectedMemberId == null) {
             System.out.println("Vous devez être connecté pour faire une réservation.");
             return;
@@ -234,10 +286,23 @@ public class Main {
             reservationService.createReservation(reservation);
 
             System.out.println("Réservation effectuée avec succès !");
+
+            // Envoi de l'email de confirmation
+            Membre membre = membreService.trouverParId(connectedMemberId).orElse(null);
+            if (membre != null) {
+                String toEmail = membre.getEmail();
+                Space reservedSpace = spaceService.getSpaceById(espaceId);
+                EmailSender.envoyerConfirmationReservation(toEmail, reservedSpace.getNom(), startDateTimeStr, endDateTimeStr);
+            } else {
+                System.out.println("Erreur lors de l'envoi de l'email de confirmation. Membre non trouvé.");
+            }
         } catch (DateTimeParseException e) {
             System.out.println("Erreur de format de date et heure. Assurez-vous d'utiliser le format YYYY-MM-DDTHH:MM:SS.");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
+
 
     private static void viewReservedSpaces(ReservationService reservationService) {
         if (connectedMemberId == null) {
@@ -331,24 +396,26 @@ public class Main {
         }
     }
 
-    private static void updatePersonalInfo(MembreService membreService) {
+    private static void updatePersonalInfo(MembreService membreService) throws SQLException {
         System.out.print("Entrez votre ID : ");
         int id = scanner.nextInt();
         scanner.nextLine(); // Consommer la ligne
-        Membre membre = membreService.trouverParId(id);
-        if (membre != null) {
+        Optional<Membre> membreOptional = membreService.trouverParId(id);
+        if (membreOptional.isPresent()) {
+            Membre membre = membreOptional.get();
             System.out.print("Entrez la nouvelle adresse : ");
             String newAddress = scanner.nextLine();
             System.out.print("Entrez le nouveau numéro de téléphone : ");
             String newPhone = scanner.nextLine();
             membre.setAddress(newAddress);
             membre.setPhone(newPhone);
-            membreService.mettreAJourInfosPersonnelles(membre);
+            membreService.mettreAJourInfosPersonnelles(Optional.of(membre));
             System.out.println("Informations personnelles mises à jour.");
         } else {
             System.out.println("ID membre non trouvé.");
         }
     }
+
 
     private static void afficherMenuAdmin(AdminService adminService) {
         while (true) {
@@ -484,7 +551,9 @@ public class Main {
                 // Gestion des réservations
                 case 5:
                     ReservationRepository reservationRepository = new ReservationRepository();
-                    ReservationService reservationService = new ReservationService(reservationRepository);
+                    MembreRepository membreRepository = new MembreRepository();
+                    ReservationService reservationService = new ReservationService(reservationRepository, membreRepository);
+
                     manageReservations(reservationService);
                     break;
 
