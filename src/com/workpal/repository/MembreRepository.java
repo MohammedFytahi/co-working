@@ -28,7 +28,7 @@ public class MembreRepository implements MembreRepositoryInterface {
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                // Assuming the `personne` table has the necessary fields to create a `Membre` object
+
                 membre = new Membre(
                         resultSet.getInt("id"),
                         resultSet.getString("name"),
@@ -91,13 +91,13 @@ public class MembreRepository implements MembreRepositoryInterface {
                     membre.setPassword(resultSet.getString("password"));
                     membre.setAddress(resultSet.getString("address"));
                     membre.setPhone(resultSet.getString("phone"));
-                    return Optional.of(membre); // Wrap the Membre object in an Optional
+                    return Optional.of(membre);
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return Optional.empty(); // Return an empty Optional if no member is found
+        return Optional.empty();
     }
 
 

@@ -20,7 +20,7 @@ public class SpaceRepository {
         }
     }
 
-    // Create a new space
+
     public void createSpace(Space space) throws SQLException {
         String sql = "INSERT INTO espace (nom, description, taille, equipements, capacite, type_espace, prix_journee, disponibilite) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -36,7 +36,7 @@ public class SpaceRepository {
         }
     }
 
-    // Get a space by ID
+
     public Space getSpaceById(int idEspace) throws SQLException {
         String sql = "SELECT * FROM espace WHERE id_espace = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -61,7 +61,7 @@ public class SpaceRepository {
         return null;
     }
 
-    // Get all spaces
+
     public List<Space> getAllSpaces() throws SQLException {
         String sql = "SELECT * FROM espace";
         List<Space> spaces = new ArrayList<>();
@@ -86,7 +86,7 @@ public class SpaceRepository {
         return spaces;
     }
 
-    // Update a space
+
     public void updateSpace(Space space) throws SQLException {
         String sql = "UPDATE espace SET nom = ?, description = ?, taille = ?, equipements = ?, capacite = ?, type_espace = ?, prix_journee = ?, disponibilite = ? WHERE id_espace = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -103,7 +103,7 @@ public class SpaceRepository {
         }
     }
 
-    // Delete a space
+
     public void deleteSpace(int idEspace) throws SQLException {
         String sql = "DELETE FROM espace WHERE id_espace = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {

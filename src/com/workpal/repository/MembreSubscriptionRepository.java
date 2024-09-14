@@ -41,7 +41,7 @@ public class MembreSubscriptionRepository implements MembreSubscriptionRepositor
                         resultSet.getInt("member_id"),
                         resultSet.getInt("plan_id"),
                         resultSet.getTimestamp("subscription_date").toLocalDateTime(),
-                        resultSet.getTimestamp("end_date").toLocalDateTime() // Récupération de la date de fin
+                        resultSet.getTimestamp("end_date").toLocalDateTime()
                 );
                 subscriptions.add(subscription);
             }
@@ -65,7 +65,7 @@ public class MembreSubscriptionRepository implements MembreSubscriptionRepositor
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, memberId);
             ResultSet resultSet = statement.executeQuery();
-            return resultSet.next(); // Retourne true si l'utilisateur a un abonnement actif
+            return resultSet.next();
         }
     }
 }

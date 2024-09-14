@@ -1,30 +1,21 @@
 package com.workpal.model;
 
-import java.math.BigDecimal;
-
-public class SubscriptionPlan {
+public class Service {
     private int id;
     private String name;
     private String description;
-    private BigDecimal price;
-    private int durationInDays;
+    private double price;
 
-    public SubscriptionPlan(int id, String name, String description, BigDecimal price, int durationInDays) {
+    public Service(int id, String name, String description, double price) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
-        this.durationInDays = durationInDays;
     }
-
-
-
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
+    public Service(String name, String description, double price) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
     }
 
     public void setId(int id) {
@@ -39,34 +30,33 @@ public class SubscriptionPlan {
         this.description = description;
     }
 
-    public void setPrice(BigDecimal price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
-    public void setDurationInDays(int durationInDays) {
-        this.durationInDays = durationInDays;
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public BigDecimal getPrice() {
+    public double getPrice() {
         return price;
-    }
-
-    public int getDurationInDays() {
-        return durationInDays;
     }
 
     @Override
     public String toString() {
-        return "SubscriptionPlan{" +
+        return "Service{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
-                ", durationInDays=" + durationInDays +
                 '}';
     }
 }

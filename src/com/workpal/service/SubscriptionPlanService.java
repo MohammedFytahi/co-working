@@ -14,7 +14,7 @@ public class SubscriptionPlanService {
         this.subscriptionPlanRepository = subscriptionPlanRepository;
     }
 
-    // Ajouter un plan d'abonnement
+
     public boolean addSubscriptionPlan(SubscriptionPlan plan) {
         try {
             subscriptionPlanRepository.createSubscriptionPlan(plan);
@@ -26,7 +26,7 @@ public class SubscriptionPlanService {
         return true;
     }
 
-    // Modifier un plan d'abonnement
+
     public boolean updateSubscriptionPlan(SubscriptionPlan plan) {
         try {
             subscriptionPlanRepository.updateSubscriptionPlan(plan);
@@ -38,7 +38,7 @@ public class SubscriptionPlanService {
         return true;
     }
 
-    // Supprimer un plan d'abonnement
+
     public boolean deleteSubscriptionPlan(int id) {
         try {
             subscriptionPlanRepository.deleteSubscriptionPlan(id);
@@ -50,7 +50,7 @@ public class SubscriptionPlanService {
         return true;
     }
 
-    // Obtenir tous les plans d'abonnement
+
     public List<SubscriptionPlan> getAllSubscriptionPlans() {
         try {
             return subscriptionPlanRepository.getAllSubscriptionPlans();

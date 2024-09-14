@@ -10,7 +10,7 @@ public class Avis {
     private String commentaire;
     private LocalDateTime dateAvis;
 
-    // Constructors, getters, and setters
+
     public int getIdAvis() {
         return idAvis;
     }

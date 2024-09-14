@@ -15,27 +15,27 @@ public class SpaceService {
         this.spaceRepository = spaceRepository;
     }
 
-    // Create a new space
+
     public void addSpace(Space space) throws SQLException {
         spaceRepository.createSpace(space);
     }
 
-    // Retrieve a space by ID
+
     public Space getSpaceById(int idEspace) throws SQLException {
         return spaceRepository.getSpaceById(idEspace);
     }
 
-    // Retrieve all spaces
+
     public List<Space> getAllSpaces() throws SQLException {
         return spaceRepository.getAllSpaces();
     }
 
-    // Update an existing space
+
     public void updateSpace(Space space) throws SQLException {
         spaceRepository.updateSpace(space);
     }
 
-    // Delete a space by ID
+
     public void deleteSpace(int idEspace) throws SQLException {
         spaceRepository.deleteSpace(idEspace);
     }

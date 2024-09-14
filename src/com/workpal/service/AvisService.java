@@ -13,12 +13,12 @@ public class AvisService {
         this.avisRepository = avisRepository;
     }
 
-    // Add a review
+
     public void ajouterAvis(Avis avis) {
         avisRepository.ajouterAvis(avis);
     }
 
-    // Display reviews for a specific space
+
     public List<Avis> afficherAvis(int idEspace) {
         return avisRepository.trouverAvisParEspace(idEspace);
     }

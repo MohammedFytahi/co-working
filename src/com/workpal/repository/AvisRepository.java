@@ -20,7 +20,7 @@ public class AvisRepository {
         }
     }
 
-    // Method to add a review
+
     public void ajouterAvis(Avis avis) {
         String query = "INSERT INTO avis (id_membre, id_espace, note, commentaire) VALUES (?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -34,7 +34,7 @@ public class AvisRepository {
         }
     }
 
-    // Method to get all reviews for a specific space
+
     public List<Avis> trouverAvisParEspace(int idEspace) {
         List<Avis> avisList = new ArrayList<>();
         String query = "SELECT * FROM avis WHERE id_espace = ?";

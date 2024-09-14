@@ -38,7 +38,7 @@ public class AdminRepository implements AdminRepositoryInterface {
 
     @Override
     public void ajouterManager(Manager manager) {
-        // Same structure as ajouterMembre
+
         String query = "INSERT INTO manager (name, email, password, address, phone, role) VALUES (?, ?, ?, ?, ?,?)";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, manager.getName());
@@ -71,7 +71,7 @@ public class AdminRepository implements AdminRepositoryInterface {
 
     @Override
     public void modifierManager(Manager manager) {
-        // Same structure as modifierMembre
+
         String query = "UPDATE manager SET name = ?, email = ?, password = ?, address = ?, phone = ? WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, manager.getName());
@@ -99,7 +99,7 @@ public class AdminRepository implements AdminRepositoryInterface {
 
     @Override
     public void supprimerManager(int managerId) {
-        // Same structure as supprimerMembre
+
         String query = "DELETE FROM manager WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, managerId);
@@ -134,7 +134,7 @@ public class AdminRepository implements AdminRepositoryInterface {
 
     @Override
     public Manager trouverManagerParId(int id) {
-        // Same structure as trouverMembreParId
+
         String query = "SELECT * FROM manager WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, id);

@@ -9,11 +9,11 @@ public class Personne {
     protected String phone;
     protected String role;
 
-    // Constructeur par défaut
+
     public Personne() {
     }
 
-    // Constructeur avec paramètres
+
     public Personne(String name, String email, String password, String address, String phone, String role) {
         this.name = name;
         this.email = email;
@@ -33,7 +33,7 @@ public class Personne {
         this.role = role;
     }
 
-    // Getters et Setters
+
     public int getId() {
         return id;
     }

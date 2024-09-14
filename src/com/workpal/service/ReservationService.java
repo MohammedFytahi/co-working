@@ -21,7 +21,7 @@ public class ReservationService {
     }
 
 
-    // Créer une réservation
+
     public boolean createReservation(Reservation reservation) {
         try {
             reservationRepository.createReservation(reservation);
@@ -32,7 +32,6 @@ public class ReservationService {
         return false;
     }
 
-    // Obtenir une réservation par ID
     public Reservation getReservationById(int idReservation) {
         try {
             return reservationRepository.getReservationById(idReservation);
@@ -42,7 +41,7 @@ public class ReservationService {
         }
     }
 
-    // Obtenir les réservations d'un membre
+
     public List<Reservation> getReservationsByMembreId(int idMembre) {
         try {
             return reservationRepository.getReservationsByMembreId(idMembre);
@@ -52,7 +51,7 @@ public class ReservationService {
         }
     }
 
-    // Supprimer une réservation
+
     public void deleteReservation(int idReservation) {
         try {
             reservationRepository.deleteReservation(idReservation);
@@ -80,7 +79,7 @@ public class ReservationService {
         }
     }
 
-    // Obtenir les réservations passées
+
     public List<Reservation> getPastReservations() {
         try {
             return reservationRepository.getReservationsByDateRange(null, LocalDateTime.now());
@@ -92,7 +91,7 @@ public class ReservationService {
 
     public boolean updateReservation(Reservation reservation) {
         try {
-            // Assuming the repository has an update method
+
             reservationRepository.updateReservation(reservation);
             System.out.println("Réservation modifiée avec succès !");
         } catch (SQLException e) {
@@ -104,9 +103,9 @@ public class ReservationService {
 
     public Optional<String> getMemberEmailById(int memberId) {
         try {
-            // Trouver le membre par son ID
+
             Optional<Membre> optionalMembre = membreRepository.trouverParId(memberId);
-            // Récupérer l'email s'il existe
+
             return optionalMembre.map(Membre::getEmail);
         } catch (SQLException e) {
             System.err.println("Erreur lors de la récupération de l'email du membre: " + e.getMessage());

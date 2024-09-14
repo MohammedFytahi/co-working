@@ -13,7 +13,7 @@ public class FavoriService {
         this.favoriRepository = favoriRepository;
     }
 
-    // Ajouter un espace aux favoris
+
     public boolean addFavori(int idMembre, int idEspace) {
         try {
             favoriRepository.addFavori(idMembre, idEspace);
@@ -24,7 +24,7 @@ public class FavoriService {
         }
     }
 
-    // Supprimer un espace des favoris
+
     public boolean removeFavori(int idMembre, int idEspace) {
         try {
             favoriRepository.removeFavori(idMembre, idEspace);
@@ -35,7 +35,7 @@ public class FavoriService {
         }
     }
 
-    // Obtenir tous les espaces favoris d'un membre
+
     public List<Space> getFavorisByMembreId(int idMembre) {
         try {
             return favoriRepository.getFavorisByMembreId(idMembre);

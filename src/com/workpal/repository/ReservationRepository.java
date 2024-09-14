@@ -20,7 +20,7 @@ public class ReservationRepository implements ReservationRepositoryInterface {
         }
     }
 
-    // Créer une nouvelle réservation
+
     @Override
     public void createReservation(Reservation reservation) throws SQLException {
         String sql = "INSERT INTO reservation (id_membre, id_espace, date_debut, date_fin) VALUES (?, ?, ?, ?)";
@@ -33,7 +33,7 @@ public class ReservationRepository implements ReservationRepositoryInterface {
         }
     }
 
-    // Obtenir une réservation par ID
+
     @Override
     public Reservation getReservationById(int idReservation) throws SQLException {
         String sql = "SELECT * FROM reservation WHERE id_reservation = ?";
@@ -55,7 +55,7 @@ public class ReservationRepository implements ReservationRepositoryInterface {
         return null;
     }
 
-    // Obtenir les réservations d'un membre
+
     @Override
     public List<Reservation> getReservationsByMembreId(int idMembre) throws SQLException {
         String sql = "SELECT * FROM reservation WHERE id_membre = ?";
@@ -79,7 +79,7 @@ public class ReservationRepository implements ReservationRepositoryInterface {
         return reservations;
     }
 
-    // Supprimer une réservation
+
     @Override
     public void deleteReservation(int idReservation) throws SQLException {
         String sql = "DELETE FROM reservation WHERE id_reservation = ?";
@@ -124,13 +124,13 @@ public class ReservationRepository implements ReservationRepositoryInterface {
         String sql = "SELECT * FROM reservation WHERE ";
 
         if (startDate != null && endDate == null) {
-            // Réservations en cours et futures
+
             sql += "date_fin >= ?";
         } else if (startDate == null && endDate != null) {
-            // Réservations passées
+
             sql += "date_fin < ?";
         } else {
-            return reservations; // Pas de requête valide si les deux sont nulles
+            return reservations;
         }
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {

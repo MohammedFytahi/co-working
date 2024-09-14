@@ -27,7 +27,7 @@ public class MembreService {
         System.out.println("Le membre a été créé avec succès.");
     }
 
-    // Méthode pour vérifier les informations de connexion
+
     public boolean seConnecter(String email, String password) {
         Optional<Membre> membreOpt = membreRepository.findByEmail(email);
         if (membreOpt.isPresent()) {
