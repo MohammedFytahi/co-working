@@ -27,6 +27,8 @@ public class Main {
         SpaceRepository spaceRepository = new SpaceRepository();
         SubscriptionPlanRepository subscriptionPlanRepository = new SubscriptionPlanRepository();
         MembreSubscriptionRepository membreSubscriptionRepository = new MembreSubscriptionRepository();
+        FavoriRepository favoriRepository = new FavoriRepository();
+        AvisRepository avisRepository = new AvisRepository();
 
 
 
@@ -38,6 +40,8 @@ public class Main {
         SpaceService spaceService = new SpaceService(spaceRepository);
         SubscriptionPlanService subscriptionPlanService = new SubscriptionPlanService(subscriptionPlanRepository);
         MembreSubscriptionService membreSubscriptionService = new MembreSubscriptionService(membreSubscriptionRepository);
+        FavoriService favoriService = new FavoriService(favoriRepository);
+        AvisService avisService = new AvisService(avisRepository);
 
 
         while (true) {
@@ -56,7 +60,8 @@ public class Main {
                         createAccount(membreService);
                         break;
                     case 2:
-                        login( personneService,  membreService,  adminService,  spaceService,  reservationService, subscriptionPlanService,  membreSubscriptionService);
+                        login(personneService, membreService, adminService, spaceService, reservationService, subscriptionPlanService, membreSubscriptionService, avisService, favoriService);
+
                         break;
                     case 3:
                         resetPassword(membreService);
@@ -114,7 +119,7 @@ public class Main {
 
     private static Integer connectedMemberId = null; // Stockage de l'ID du membre connecté
 
-    private static void login(PersonneService personneService, MembreService membreService, AdminService adminService, SpaceService spaceService, ReservationService reservationService, SubscriptionPlanService subscriptionPlanService, MembreSubscriptionService membreSubscriptionService) throws SQLException {
+    private static void login(PersonneService personneService, MembreService membreService, AdminService adminService, SpaceService spaceService, ReservationService reservationService, SubscriptionPlanService subscriptionPlanService, MembreSubscriptionService membreSubscriptionService, AvisService avisService, FavoriService favoriService) throws SQLException {
         System.out.print("Entrez l'email : ");
         String loginEmail = scanner.nextLine();
         System.out.print("Entrez le mot de passe : ");
@@ -137,7 +142,7 @@ public class Main {
             System.out.println("Connexion réussie en tant que " + role + ".");
             switch (role) {
                 case "membre":
-                    afficherMenuMembre(membreService, reservationService, spaceService, subscriptionPlanService, membreSubscriptionService);
+                    afficherMenuMembre(membreService, reservationService, spaceService, subscriptionPlanService, membreSubscriptionService, avisService, favoriService);
                     break;
                 case "admin":
                     afficherMenuAdmin(adminService);
@@ -160,18 +165,21 @@ public class Main {
         membreService.recupererMotDePasse(email);
         System.out.println("Si un membre avec cet email existe, un mot de passe temporaire a été envoyé.");
     }
-    private static void afficherMenuMembre(MembreService membreService, ReservationService reservationService, SpaceService spaceService, SubscriptionPlanService subscriptionPlanService, MembreSubscriptionService membreSubscriptionService) throws SQLException {
+    private static void afficherMenuMembre(MembreService membreService, ReservationService reservationService, SpaceService spaceService, SubscriptionPlanService subscriptionPlanService, MembreSubscriptionService membreSubscriptionService, AvisService avisService, FavoriService favoriService) throws SQLException {
         while (true) {
             System.out.println("=== Menu Membre ===");
             System.out.println("1. Rechercher des espaces disponibles");
             System.out.println("2. Réserver un espace de travail ou une salle de réunion");
             System.out.println("3. Voir les détails de l’espace réservé");
-            System.out.println("4. Sauvegarder des espaces favoris");
+            System.out.println("4. Sauvegarder et gérer des espaces favoris");
             System.out.println("5. Consulter le calendrier des événements");
             System.out.println("6. Mettre à jour les informations personnelles");
             System.out.println("7. Choisir un plan d'abonnement");
             System.out.println("8. Voir mes abonnements");
-            System.out.println("9. Déconnexion");
+            System.out.println("9. Laisser un avis sur un espace");
+            System.out.println("10. Consulter les avis sur un espace");
+            System.out.println("11. Renouveler ou mettre à jour un abonnement");
+            System.out.println("12. Déconnexion");
             System.out.print("Choisissez une option : ");
             int choix = scanner.nextInt();
             scanner.nextLine(); // Consommer la ligne
@@ -187,12 +195,10 @@ public class Main {
                     viewReservedSpaces(reservationService);
                     break;
                 case 4:
-                    FavoriRepository favoriRepository = new FavoriRepository();
-                    FavoriService favoriService = new FavoriService(favoriRepository);
-                    manageFavoris(favoriService);
+                    manageFavoris(favoriService); // Gérer les favoris
                     break;
                 case 5:
-
+                    // Gestion du calendrier des événements (à implémenter)
                     break;
                 case 6:
                     updatePersonalInfo(membreService);
@@ -204,6 +210,12 @@ public class Main {
                     viewMySubscriptions(membreSubscriptionService);
                     break;
                 case 9:
+                    laisserUnAvis(avisService, connectedMemberId);
+                    break;
+                case 10:
+                    consulterAvis(avisService);
+                    break;
+                case 11:
                     System.out.println("Déconnexion réussie.");
                     return;
                 default:
@@ -211,6 +223,49 @@ public class Main {
             }
         }
     }
+
+    private static void consulterAvis(AvisService avisService) {
+        System.out.print("Entrez l'ID de l'espace pour consulter les avis : ");
+        int espaceId = scanner.nextInt();
+
+        List<Avis> avisList = avisService.afficherAvis(espaceId);
+        if (avisList.isEmpty()) {
+            System.out.println("Aucun avis pour cet espace.");
+        } else {
+            for (Avis avis : avisList) {
+                System.out.println("Note : " + avis.getNote());
+                System.out.println("Commentaire : " + avis.getCommentaire());
+                System.out.println("Date : " + avis.getDateAvis());
+                System.out.println();
+            }
+        }
+    }
+
+
+    private static void laisserUnAvis(AvisService avisService, int membreId) {
+        System.out.print("Entrez l'ID de l'espace que vous avez utilisé : ");
+        int espaceId = scanner.nextInt();
+        scanner.nextLine(); // Consommer la ligne
+
+        System.out.print("Entrez une note (1-5) : ");
+        int note = scanner.nextInt();
+        scanner.nextLine(); // Consommer la ligne
+
+        System.out.print("Laissez un commentaire : ");
+        String commentaire = scanner.nextLine();
+
+        // Créer un objet Avis
+        Avis avis = new Avis();
+        avis.setIdMembre(membreId);
+        avis.setIdEspace(espaceId);
+        avis.setNote(note);
+        avis.setCommentaire(commentaire);
+
+        // Ajouter l'avis via le service
+        avisService.ajouterAvis(avis);
+        System.out.println("Merci pour votre avis !");
+    }
+
 
     private static void chooseSubscriptionPlan(SubscriptionPlanService subscriptionPlanService,
                                                MembreSubscriptionService membreSubscriptionService) {
@@ -221,16 +276,35 @@ public class Main {
                 System.out.println(plan.getId() + ". " + plan.getName() + " - " + plan.getPrice() + " EUR pour " + plan.getDurationInDays() + " jours.");
             }
 
-            System.out.print("Entrez l'ID du plan auquel vous voulez souscrire : ");
+            System.out.print("Entrez l'ID du plan auquel vous voulez souscrire ou renouveler : ");
             int planId = scanner.nextInt();
             scanner.nextLine(); // Consommer la ligne
 
-            membreSubscriptionService.subscribeMemberToPlan(connectedMemberId, planId);
-            System.out.println("Vous avez souscrit au plan avec succès.");
+            // Vérifiez si le membre a un abonnement actif
+            boolean hasActiveSubscription = membreSubscriptionService.hasActiveSubscription(connectedMemberId);
+
+            if (hasActiveSubscription) {
+                System.out.println("Vous avez déjà un abonnement actif.");
+                System.out.print("Souhaitez-vous renouveler votre abonnement ? (oui/non) : ");
+                String response = scanner.nextLine().trim().toLowerCase();
+
+                if ("oui".equals(response)) {
+                    // Renouveler l'abonnement
+                    membreSubscriptionService.renewSubscription(connectedMemberId, planId);
+                    System.out.println("Votre abonnement a été renouvelé avec succès.");
+                } else {
+                    System.out.println("Abonnement non renouvelé.");
+                }
+            } else {
+                // Souscrire à un nouvel abonnement
+                membreSubscriptionService.subscribeMemberToPlan(connectedMemberId, planId);
+                System.out.println("Vous avez souscrit au plan avec succès.");
+            }
         } catch (SQLException e) {
             System.out.println("Erreur lors de la souscription : " + e.getMessage());
         }
     }
+
 
     private static void viewMySubscriptions(MembreSubscriptionService membreSubscriptionService) {
         try {

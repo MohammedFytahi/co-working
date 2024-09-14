@@ -7,12 +7,14 @@ public class MembreSubscription {
     private int memberId;
     private int planId;
     private LocalDateTime subscriptionDate;
+    private LocalDateTime endDate; // Ajouté pour la gestion des dates de fin d'abonnement
 
-    public MembreSubscription(int id, int memberId, int planId, LocalDateTime subscriptionDate) {
+    public MembreSubscription(int id, int memberId, int planId, LocalDateTime subscriptionDate, LocalDateTime endDate) {
         this.id = id;
         this.memberId = memberId;
         this.planId = planId;
         this.subscriptionDate = subscriptionDate;
+        this.endDate = endDate;
     }
 
     public void setId(int id) {
@@ -31,6 +33,10 @@ public class MembreSubscription {
         this.subscriptionDate = subscriptionDate;
     }
 
+    public void setEndDate(LocalDateTime endDate) {
+        this.endDate = endDate;
+    }
+
     public int getId() {
         return id;
     }
@@ -46,5 +52,8 @@ public class MembreSubscription {
     public LocalDateTime getSubscriptionDate() {
         return subscriptionDate;
     }
-// Getters and Setters
+
+    public LocalDateTime getEndDate() {
+        return endDate;
+    }
 }

@@ -20,7 +20,7 @@ public class MembreSubscriptionRepository implements MembreSubscriptionRepositor
 
     @Override
     public void subscribeMemberToPlan(int memberId, int planId) throws SQLException {
-        String sql = "INSERT INTO member_subscriptions (member_id, plan_id) VALUES (?, ?)";
+        String sql = "INSERT INTO member_subscriptions (member_id, plan_id, subscription_date, end_date) VALUES (?, ?, NOW(), NOW() + INTERVAL '30 days')";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, memberId);
             statement.setInt(2, planId);
@@ -40,11 +40,32 @@ public class MembreSubscriptionRepository implements MembreSubscriptionRepositor
                         resultSet.getInt("id"),
                         resultSet.getInt("member_id"),
                         resultSet.getInt("plan_id"),
-                        resultSet.getTimestamp("subscription_date").toLocalDateTime()
+                        resultSet.getTimestamp("subscription_date").toLocalDateTime(),
+                        resultSet.getTimestamp("end_date").toLocalDateTime() // Récupération de la date de fin
                 );
                 subscriptions.add(subscription);
             }
         }
         return subscriptions;
+    }
+
+    @Override
+    public void renewSubscription(int memberId, int planId) throws SQLException {
+        String sql = "UPDATE member_subscriptions SET plan_id = ?, subscription_date = NOW(), end_date = NOW() + INTERVAL '30 days' WHERE member_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, planId);
+            statement.setInt(2, memberId);
+            statement.executeUpdate();
+        }
+    }
+
+    @Override
+    public boolean hasActiveSubscription(int memberId) throws SQLException {
+        String sql = "SELECT 1 FROM member_subscriptions WHERE member_id = ? AND end_date > NOW()";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, memberId);
+            ResultSet resultSet = statement.executeQuery();
+            return resultSet.next(); // Retourne true si l'utilisateur a un abonnement actif
+        }
     }
 }
