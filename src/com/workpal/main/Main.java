@@ -30,6 +30,7 @@ public class Main {
         FavoriRepository favoriRepository = new FavoriRepository();
         AvisRepository avisRepository = new AvisRepository();
         ServiceRepository serviceRepository = new ServiceRepository();
+        EvenementRepository evenementRepository = new EvenementRepository();
 
 
 
@@ -44,6 +45,7 @@ public class Main {
         FavoriService favoriService = new FavoriService(favoriRepository);
         AvisService avisService = new AvisService(avisRepository);
         ServiceService serviceService = new ServiceService(serviceRepository);
+        EvenementService evenementService = new EvenementService(evenementRepository);
 
 
         while (true) {
@@ -62,7 +64,7 @@ public class Main {
                         createAccount(membreService);
                         break;
                     case 2:
-                        login(personneService, membreService, adminService, spaceService, reservationService, subscriptionPlanService, membreSubscriptionService, avisService, favoriService, serviceService);
+                        login(personneService, membreService, adminService, spaceService, reservationService, subscriptionPlanService, membreSubscriptionService, avisService, favoriService, serviceService, evenementService);
 
                         break;
                     case 3:
@@ -121,7 +123,7 @@ public class Main {
 
     private static Integer connectedMemberId = null;
 
-    private static void login(PersonneService personneService, MembreService membreService, AdminService adminService, SpaceService spaceService, ReservationService reservationService, SubscriptionPlanService subscriptionPlanService, MembreSubscriptionService membreSubscriptionService, AvisService avisService, FavoriService favoriService, ServiceService serviceService) throws SQLException {
+    private static void login(PersonneService personneService, MembreService membreService, AdminService adminService, SpaceService spaceService, ReservationService reservationService, SubscriptionPlanService subscriptionPlanService, MembreSubscriptionService membreSubscriptionService, AvisService avisService, FavoriService favoriService, ServiceService serviceService, EvenementService evenementService) throws SQLException {
         System.out.print("Entrez l'email : ");
         String loginEmail = scanner.nextLine();
         System.out.print("Entrez le mot de passe : ");
@@ -151,7 +153,7 @@ public class Main {
                     break;
                 case "manager":
 
-                    afficherMenuManager(spaceService, subscriptionPlanService, serviceService);
+                    afficherMenuManager(spaceService, subscriptionPlanService, serviceService, evenementService);
                     break;
             }
         } else {
@@ -574,7 +576,8 @@ public class Main {
 
     private static void afficherMenuManager(SpaceService spaceService,
                                             SubscriptionPlanService subscriptionPlanService,
-                                            ServiceService serviceService) throws SQLException {
+                                            ServiceService serviceService,
+                                            EvenementService evenementService) throws SQLException {
         while (true) {
             System.out.println("=== Menu Manager ===");
             System.out.println("1. Ajouter un espace de travail ou une salle de réunion");
@@ -587,7 +590,8 @@ public class Main {
             System.out.println("8. Supprimer un plan d'abonnement");
             System.out.println("9. Afficher tous les plans d'abonnement");
             System.out.println("10. Gérer les services supplémentaires");
-            System.out.println("11. Déconnexion");
+            System.out.println("11. Gérer les événements");
+            System.out.println("12. Déconnexion");
             System.out.print("Choisissez une option : ");
             int choix = scanner.nextInt();
             scanner.nextLine();
@@ -677,6 +681,9 @@ public class Main {
                     afficherMenuGestionServices(serviceService);
                     break;
                 case 11:
+                    afficherMenuGestionEvenements(evenementService);
+                    break;
+                case 12:
                     System.out.println("Déconnexion réussie.");
                     return;
                 default:
@@ -684,6 +691,91 @@ public class Main {
             }
         }
     }
+
+
+    private static void afficherMenuGestionEvenements(EvenementService evenementService) throws SQLException {
+        while (true) {
+            System.out.println("=== Menu Gestion des Événements ===");
+            System.out.println("1. Ajouter un événement");
+            System.out.println("2. Modifier un événement");
+            System.out.println("3. Supprimer un événement");
+            System.out.println("4. Afficher tous les événements");
+            System.out.println("5. Retour au menu principal");
+            System.out.print("Choisissez une option : ");
+            int choix = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (choix) {
+                case 1:
+                    Evenement newEvenement = collectEvenementDetails(scanner);
+                    evenementService.addEvenement(newEvenement);
+                    System.out.println("Événement ajouté avec succès.");
+                    break;
+                case 2:
+                    System.out.print("Entrez l'ID de l'événement à modifier : ");
+                    int idEvenement = scanner.nextInt();
+                    scanner.nextLine();
+                    Evenement evenementAModifier = evenementService.getEvenementById(idEvenement);
+                    if (evenementAModifier != null) {
+                        Evenement evenementModifie = collectEvenementDetails(scanner);
+                        evenementModifie.setId(idEvenement);
+                        evenementService.updateEvenement(evenementModifie);
+                        System.out.println("Événement modifié avec succès.");
+                    } else {
+                        System.out.println("Événement non trouvé.");
+                    }
+                    break;
+                case 3:
+                    System.out.print("Entrez l'ID de l'événement à supprimer : ");
+                    int idEvenementToDelete = scanner.nextInt();
+                    scanner.nextLine();
+                    evenementService.deleteEvenement(idEvenementToDelete);
+                    System.out.println("Événement supprimé avec succès.");
+                    break;
+                case 4:
+                    System.out.println("Liste des événements :");
+                    List<Evenement> evenements = evenementService.getAllEvenements();
+                    if (evenements != null && !evenements.isEmpty()) {
+                        evenements.forEach(evenement -> {
+                            System.out.println(evenement.toString());
+                        });
+                    } else {
+                        System.out.println("Aucun événement disponible.");
+                    }
+                    break;
+                case 5:
+                    return; // Retour au menu principal
+                default:
+                    System.out.println("Option invalide. Essayez encore.");
+            }
+        }
+    }
+
+
+    private static Evenement collectEvenementDetails(Scanner scanner) {
+        System.out.print("Entrez le nom de l'événement : ");
+        String nom = scanner.nextLine();
+
+        System.out.print("Entrez la description de l'événement : ");
+        String description = scanner.nextLine();
+
+        System.out.print("Entrez la date de l'événement (format YYYY-MM-DD HH:MM:SS) : ");
+        LocalDateTime date = LocalDateTime.parse(scanner.nextLine());
+
+        System.out.print("Entrez le lieu de l'événement : ");
+        String lieu = scanner.nextLine();
+
+        System.out.print("Entrez le prix de l'événement : ");
+        double prix = scanner.nextDouble();
+        scanner.nextLine();
+
+        System.out.print("Entrez la capacité de l'événement : ");
+        int capacite = scanner.nextInt();
+        scanner.nextLine();
+
+        return new Evenement(nom, description, date, lieu, prix, capacite);
+    }
+
 
     private static void afficherMenuGestionServices(ServiceService serviceService) throws SQLException {
         while (true) {
